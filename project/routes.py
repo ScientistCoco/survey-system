@@ -8,7 +8,7 @@ def index():
 
 @app.route("/admin_login")
 def admin_login():
-	return render_template("login_page.html")
+	return render_template("index.html")
 
 @app.route("/student_page")
 def student_page():
