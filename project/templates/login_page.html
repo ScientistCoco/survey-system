@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+	<body>
+		<Form method = "POST">
+		<input name = "user_name" placeholder = "Username"/>
+		<input name = "password" placeholder = "Password"/>
+		<button type = "Submit"> Login </button>
+		</Form>
+
+		<!-- Error block messages when the user fails to log in -->
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+					<h4> {{messages}} </h4>
+			{% endif %}
+		{% endwith %}
+	</body>
+</html>
