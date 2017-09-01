@@ -71,6 +71,7 @@ def create_questions():
 			with open('questions.txt', 'w') as f:
 				f.write(question_entered)
 			flash('Question successfully saved')
+			f.close()
 			return redirect(url_for("create_questions"))
 		return render_template("create_questions.html")
 
@@ -81,26 +82,42 @@ def view_questions():
 
 @app.route("/survey_creation", methods = ["POST", "GET"])
 def survey_creation():
+	# Transferring the course.csv file into a list
+	course_list = []
+	list_of_question_for_course = []
+	survey_from_file = {}
 	with open('courses.csv', 'r') as course_file:
 		reader = csv.reader(course_file)
-		course_list = list(reader)
-		del course_list[0] # remove the first
+		course_file = list(reader)
+		del course_file[0]
+	for course in course_file:
+		course_list = course_list + course
 	question_entered = checking_question_file_exists()
+
 	if request.method == "POST":
+		if os.path.isfile('survey_course.txt'):
+			f = open('survey_course.txt', 'r')
+			survey_from_file = json.load(f)
+			f.close()
 		# Add a flash message when the user adds a question and show the question added
 		selected_course = request.form.get('course')
 		selected_question = request.form.get('question')
-		course_question = {}
+		#selected_question = list(request.form.get('question'))
 		#create_dictionary(selected_course, selected_question, course_question)
-		for selected_course in course_question:
-			if selected_course in course_question:
-				course_question[selected_course] = selected_question
-			else:
-				course_question.update({selected_course:selected_question})
-
-		return(str(course_question))
+		list_of_question_for_course.append(selected_question)
+		if selected_course in survey_from_file:
+			list_of_question_for_course = survey_from_file[selected_course]
+			survey_from_file[selected_course] = list_of_question_for_course
+		else:
+			survey_from_file.update({selected_course:[selected_question]})
+		f = open('survey_course.txt', 'w')
+		survey_to_file = json.dumps(survey_from_file)
+		f.write(survey_to_file)
+		f.close()
+		#flash('Question added to the survey')
 	return render_template("survey_creation.html", course_list = course_list,
-		question_list = question_entered)
+		question_list = question_entered, questions_added = list_of_question_for_course)
+
 
 # Function to check that the question file exists
 def checking_question_file_exists():
@@ -110,10 +127,3 @@ def checking_question_file_exists():
 	else:
 		question_entered = ['No questions entered']
 	return question_entered
-
-def create_dictionary(key, value, dict):
-	for key in dict:
-		if key in dict:
-			dict[key] = value
-		else:
-			dict.update({key:value})
