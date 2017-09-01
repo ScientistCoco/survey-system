@@ -127,3 +127,17 @@ def checking_question_file_exists():
 	else:
 		question_entered = ['No questions entered']
 	return question_entered
+
+@app.route("/answer_survey/<course>", methods = ['GET', 'POST'])
+def answer_survey(course):
+	#Load the survey json file which contains the course and their respective questions
+	if os.path.isfile('survey_course.txt'):
+		f = open('survey_course.txt', 'r')
+		survey_from_file = json.load(f)
+		f.close()
+		if course not in survey_from_file:
+			return "No surveys have been created"
+	else:
+		return "No surveys have been created"
+
+	return render_template("survey_form.html", course_survey = survey_from_file[course], course_name = course) 

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+	<h3> Questions for {{course_name}} </h3>
+	{% for question in course_survey %}
+		{{question}}
+		<form>
+			<!-- The radio input type displays a radio button that the user
+			can toggle on and off. When building a list of radio buttons, the name
+			attribute must be identical for each option in the list.
+			This ensures that only one radio input in the group can be selected.
+			When the form is submitted, it will include the contents of the value
+			attribute corresponding to the selected radio button -->
+			<input type = "radio" name = answer value = "1"> 1
+			<input type = "radio" name = answer value = "2"> 2
+			<input type = "radio" name = answer value = "3"> 3
+			<input type = "radio" name = answer value = "4"> 4
+			<input type = "radio" name = answer value = "5"> 5
+		</form>
+		</br>
+	{% endfor %}
+	<input type = "button" value = "Submit answers"> <!-- On click it should flash that answers were accepted -->
+</html>
