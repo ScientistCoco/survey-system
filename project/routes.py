@@ -76,14 +76,44 @@ def create_questions():
 
 @app.route("/view_questions")
 def view_questions():
+	question_entered = checking_question_file_exists()
+	return render_template("view_questions.html", all_questions = question_entered)
+
+@app.route("/survey_creation", methods = ["POST", "GET"])
+def survey_creation():
+	with open('courses.csv', 'r') as course_file:
+		reader = csv.reader(course_file)
+		course_list = list(reader)
+		del course_list[0] # remove the first
+	question_entered = checking_question_file_exists()
+	if request.method == "POST":
+		# Add a flash message when the user adds a question and show the question added
+		selected_course = request.form.get('course')
+		selected_question = request.form.get('question')
+		course_question = {}
+		#create_dictionary(selected_course, selected_question, course_question)
+		for selected_course in course_question:
+			if selected_course in course_question:
+				course_question[selected_course] = selected_question
+			else:
+				course_question.update({selected_course:selected_question})
+
+		return(str(course_question))
+	return render_template("survey_creation.html", course_list = course_list,
+		question_list = question_entered)
+
+# Function to check that the question file exists
+def checking_question_file_exists():
 	if os.path.isfile('questions.txt'):
 		with open('questions.txt') as f:
 			question_entered = json.load(f)
 	else:
 		question_entered = ['No questions entered']
-	return render_template("view_questions.html", all_questions = question_entered)
+	return question_entered
 
-@app.route("/survey_creation")
-def survey_creation():
-
-	return render_template("survey_creation.html")
+def create_dictionary(key, value, dict):
+	for key in dict:
+		if key in dict:
+			dict[key] = value
+		else:
+			dict.update({key:value})

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+	<body>
+		<form method = "POST" >
+			<input type = "button" value = "Select a course:"/>
+			<select id = 'course' name = 'course'>
+			{% for x in course_list %}
+				<option value = "{{ x }}" {% if loop.first %} SELECTED {% endif %}> {{ x }} </option>
+			{% endfor %}
+		<!-- Then allow the user to pick the questions for that course -->
+			</select>
+			</br>
+			</br>
+			<input type = "button" value = "Pick a question: "/>
+			<select id = 'question' name = 'question'>
+			{% for y in question_list %}
+				<option value = "{{ y }}" {% if loop.first %} SELECTED {% endif %}> {{ y }} </option>
+			{% endfor %}
+			</select>
+			<button type = "submit"> Submit </button>
+		</form>
+	</body>
+</html>
