@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+	<form method = "POST">
+	<input name = "question_entered" placeholder = "Enter the question">
+	</br>
+	<input type = "button" value = "View questions" onclick = "location.href = '/view_questions'">
+	<input type = "submit" value = "Submit question">
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<h4> {{messages}} </h4>
+		{% endif %}
+	{% endwith %}
+	</form>
+</html>

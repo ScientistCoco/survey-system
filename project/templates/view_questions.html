@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+	<!-- Declare a counter variable -->
+	<script type = "text/javascript">
+	var counter = 1;
+	</script>
+
+	<body>
+		{% if all_questions %}
+		{% for question in all_questions %}
+			<!-- Display the number of the question and increment the counter variable -->
+			<script type = "text/javascript">
+				document.write(counter)
+				counter = counter + 1;
+			</script>
+			{{question}}
+			</br>
+		{% endfor %}
+		{% endif %}
+	</body>
+</html>
