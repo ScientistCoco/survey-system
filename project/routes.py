@@ -82,3 +82,8 @@ def view_questions():
 	else:
 		question_entered = ['No questions entered']
 	return render_template("view_questions.html", all_questions = question_entered)
+
+@app.route("/survey_creation")
+def survey_creation():
+
+	return render_template("survey_creation.html")
