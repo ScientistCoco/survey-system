@@ -158,4 +158,6 @@ def answer_survey(course):
 	else:
 		return "No surveys have been created"
 
+	if request.method == ["POST"]:
+		flash('Answers saved')
 	return render_template("survey_form.html", course_survey = survey_from_file[course], course_name = course) 

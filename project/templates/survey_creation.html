@@ -38,11 +38,11 @@
 			{% endfor %}
 			<h4> Link to the survey is: </h4>
 				{% if course_url %}
-			
+				<!-- Generates link to the survey for students -->
+				<a href='answer_survey/{{course_url}}'>{{course_url}}</a>
 				{% endif %}
 			{% endif %}
 
-	<a href='answer_survey/{{course_url}}'>{{course_url}}</a>
 
 		</form>
 	</body>

@@ -17,5 +17,11 @@
 		</form>
 		</br>
 	{% endfor %}
-	<input type = "button" value = "Submit answers"> <!-- On click it should flash that answers were accepted -->
+	<button onclick = "answers_accepted()">Submit answers</button> <!-- On click it should flash that answers were accepted -->
+
+	<script>
+	function answers_accepted(){
+		alert("Answers were accepted! Thanks");
+	}
+	</script>
 </html>
