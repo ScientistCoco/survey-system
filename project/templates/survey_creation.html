@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 	<body>
+	<!-- Redirecting buttons -->
+	<input type = "button" value = "Logout" onclick = "location.href = '/logout'">
+	<input type = "button" value = "Tool Page" onclick = "location.href = '/admin_tools'">
+	<br></br>
 		<form method = "POST" >
 			<input type = "button" value = "Select a course:"/>
 			<select id = 'course' name = 'course'>
@@ -18,13 +22,28 @@
 			</select>
 			<button type = "submit"> Submit </button>
 
+			<!-- Error messages -->
+			{% with messages = get_flashed_messages() %}
+			{% if messages %}
+					<h4> {{messages}} </h4>
+			{% endif %}
+			{% endwith %}
+
+			<!-- When questions have been successfully added -->
 			<h4> Questions added to this course are: </h4>
 			{% if questions_added %}
 			{% for question in questions_added %}
 			{{question}}
 			</br>
 			{% endfor %}
+			<h4> Link to the survey is: </h4>
+				{% if course_url %}
+			
+				{% endif %}
 			{% endif %}
+
+	<a href='answer_survey/{{course_url}}'>{{course_url}}</a>
+
 		</form>
 	</body>
 </html>

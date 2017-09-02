@@ -1,1 +1,1 @@
-{"COMP2041 17s2": ["The name is", "Hi", "The name is", "The name is", "The name is", "Hi", "The name is", "Hi", "The name is", "The name is", "Hi", "The name is", "The name is", "Hi", "Hi", "The name is"], "COMP2041 18s2": ["The name is", "The name is"], "COMP1531 18s1": ["Hi"], "COMP1531 17s2": ["The name is", "The name is"], "COMP1927 17x1": ["The name is"], "COMP1000 17s1": ["The name is"], "COMP2521 17s2": ["Hi"], "COMP2511 18s2": ["The name is"]}
+{"COMP2041 17s2": ["The name is", "Hi"]}
