@@ -40,17 +40,17 @@
 	<body>
 
 	<div class = "form-col">
-	<form class = "course-select" method = "POST">
+	<form class = "course-select" method = "GET">
 	<label class " course_name" for "inlineFormCustomSelect"> Pick the course </label>
 	<div class = "input-group">
-			<select class = "custom-select form-control" name = "course-selected">
+			<select class = "custom-select form-control" name = "course-selected" id = "course-selected">
 				{% for x in course_list %}
 					<option value = "{{x}}"{% if loop.first %} SELECTED {% endif %}>{{x}}</option>
 				{% endfor %}
 			</select>
-			<span class = "input-group-btn">
+			<!--<span class = "input-group-btn">
 				<button class = "btn btn-primary" type = 'Submit'><i class = "fa fa-check"></i></button>
-			</span>
+			</span>-->
 	</div>
 	</form>
 	</div>
@@ -149,5 +149,18 @@
 
 	<script src="static/js/bootstrap.min.js"></script>
 	<script src = "static/js/dropdown.js"></script>
+  <!-- Script for getting value in dropdown menu -->
+  <script>
+    $("#course-selected").change(function(){
+      var course = this.value;
+      //alert(course)
+      //.get("survey_creation.html", {'course-selected':course}, alert(course));
+      $.ajax({
+        success: function(msg){
+          alert("Ok");
+        }
+      });
+    });
+  </script>
 </body>
 </html>

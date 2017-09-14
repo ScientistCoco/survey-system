@@ -48,7 +48,7 @@ selected_course = ''
 def survey_creation():
 	survey = Survey('survey_course.txt', 'question_file.txt', 'courses.csv')
 
-	if (request.form.get('course-selected')):
+	if (request.args.get('course-selected')):
 		selected_course = request.form.get('course-selected')
 		question_in_course = survey.get_questions_in_course(selected_course)
 		question_answer = {}
