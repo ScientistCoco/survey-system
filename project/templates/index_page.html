@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<script language = "Javascript" type = "text/javascript">
+function login(showhide){
+if(showhide == "show"){
+  document.getElementById('login_box').style.visibility = "visible";
+} else if (showhide == "hide"){
+  document.getElementById('login_box').style.visibility = "hidden";
+}
+}
+</script>
+
+<html>
+  <body>
+    <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #9dbdbf
+    }
+    </style>
+    <!--href = "./survey__system/static/style.css"-->
+    <link rel = "stylesheet" type = "text/css" href = "{{url_for('static', filename = 'style.css')}}">
+    <header>
+      <div class = "container">
+        <div id = "welcome">
+          <h1>  I am a... </h1>
+        </div>
+      </div>
+    </header>
+
+    <section id = "user_type">
+      <div class = "container">
+        <div class = "box">
+          <!--"./survey__system/static/teacher.png"-->
+          <a href = "javascript:login('show');"><img src = "./static/teacher.png" ></a>
+          <h1> Teacher </h1>
+        </div>
+        <div class = "box">
+          <img src = "./static/student.png">
+          </br>
+          <h1> Student </h1>
+        </div>
+      </div>
+    </section>
+
+    <div id = "login_box">
+        <a href = "javascript:login('hide');"><img src = "./static/close-button.png"></a/>
+          <div class ="input_area">
+            <form method = "POST">
+            <center><input id = "username" name = "user_name" placeholder = "Username" type = "text"><center>
+            </br>
+            <center><input id = "password" name = "password" placeholder = "Password" type = "password"><center>
+            </br>
+            <center><input id = "submit_login" value = "Login" type = "submit"><center>
+            </form>
+          </div>
+        <!--<center><a href = "javascript:login('hide');">close</a><center>-->
+    </div>
+  </body>
+</html>

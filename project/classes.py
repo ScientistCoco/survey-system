@@ -1,88 +1,91 @@
-import csv, json, os
-from flask import Flask, request, flash
+from flask import flash
+import os, json, csv, random
+from mvc import Controller, SurveyModel, SurveyView
+controller = Controller()
+class Login:
+	def __init__(self, username, password):
+		self._username = username
+		self._password = password
+
+	def authenticate(self, **user_details):
+		if self._username == user_details['username'] and self._password == user_details['password']:
+			return True
+		else:
+			return False
 
 class Admin:
-	def __init__(self, username, password, course, question_file, course_file):
-		self.username = username
-		self.password = password
-		self.course = course
-		self.question_file = question_file
-		self.course_file = course_file
 
-	def create_questions(self):
-	# If the user chooses to submit a question we need to save it
-	# to a csv file and flash a message to show that the question
-	# was saved to a file.
-	# Check if the questions file exists, if it does we 
-	# grab the data which is in json format and convert
-	# it to a list type
-		if os.path.isfile(self.question_file):
-			with open(self.question_file) as f:
-				question_entered = json.load(f)
-		else:
-			question_entered = []
-		input_from_server = request.form.getlist('question_entered')
-		question_entered = question_entered + input_from_server
-		question_entered = json.dumps(question_entered)
-		with open(self.question_file, 'w') as f:
-			f.write(question_entered)
-		flash('Question successfully saved')
-		f.close()
+	def __init__(self, question_filename):
+		self.question_filename = question_filename
 
-	def view_questions(self):
-		pass
+	def open_questionfile(self):
+		questions = controller.view_all_questions()
+		return questions
 
-	# Checks the question_file exists
-	def checking_question_file_exists(self):
-		if os.path.isfile(self.question_file):
-			with open(self.question_file) as f:
-				question_entered = json.load(f)
-		else:
-			question_entered = ['No questions entered']
-		return question_entered
+	def add_question(self, question_to_add, answer_to_add):
+		questionID = random.randint(1,50)
+		answerID = questionID
+		controller.add_questionText(questionID, question_to_add)
+		for answer in answer_to_add:
+			controller.add_answerText(answerID, questionID, answer)
 
-	def create_survey(self, course_list, question_entered, list_of_question_for_course, selected_course, survey_from_file):
-		self.course_list = course_list
-		self.question_entered = question_entered
-		self.list_of_question_for_course = list_of_question_for_course
-		self.selected_course = selected_course
-		self.survey_from_file = survey_from_file
-		# Transferring the course.csv file into a list so that we can parse it
-		# to javascript and display a dropdown menu of the courses available 
-		with open(self.course_file, 'r') as course_file:
-			reader = csv.reader(course_file)
-			course_file = list(reader)
-			del course_file[0]
-		for course in course_file:
-			self.course_list = self.course_list + course
-		# Then get the list of questions that we made in the create_questions directory
-		self.question_entered = self.checking_question_file_exists()
+	def view_answers(self, question_to_see):
+		question_id = controller.search_questionID(question_to_see)
+		answer_list = controller.search_answerText(question_id)
+		return answer_list
 
-		if request.method == "POST":
-			if os.path.isfile('survey_course.txt'):
-				f = open('survey_course.txt', 'r')
-				survey_from_file = json.load(f)
-				f.close()
-			# Gathering the post data on the selected course and selected question
-			self.selected_course = request.form.get('course')
-			self.selected_question = request.form.get('question')
+class Survey(Admin):
+	def __init__(self, survey_filename, question_filename, course_filename):
+		Admin.__init__(self, question_filename)
+		self.survey_filename = survey_filename
+		self.course_filename = course_filename
 
-			# Check if the selected course already has a survey made, if it does
-			# we add the questions to that course survey, if not we make a new
-			# dictionary key for that course
-			if self.selected_course in self.survey_from_file:
-				self.list_of_question_for_course = self.survey_from_file[selected_course]
-				# We check if the question has already been added to the survey form:
-				if self.selected_question in self.list_of_question_for_course:
-					flash('Question already added')
-				else:
-					self.list_of_question_for_course = self.survey_from_file[self.selected_course] + [self.selected_question]
-				self.survey_from_file[selected_course] = self.list_of_question_for_course
-			else:
-				self.survey_from_file.update({self.selected_course:[self.selected_question]})
-			f = open('survey_course.txt', 'w')
-			survey_to_file = json.dumps(self.survey_from_file)
-			f.write(survey_to_file)
+	def open_surveyfile(self):
+		survey_file = {}
+		if os.path.isfile(self.survey_filename):
+			with open(self.survey_filename) as f:
+				survey_file = json.load(f)
 			f.close()
-			#flash('Question added to the survey')	
+		return survey_file
 
+	def get_courselist(self):
+		course_list = []
+		f = open(self.course_filename)
+		reader = csv.reader(f)
+		courses_from_file = list(reader)
+		del courses_from_file[0]
+		for course in courses_from_file:
+			course_list = course_list + course
+		return course_list
+
+
+	def add_question_to_survey(self, course_name, question_to_add):
+		question_list = super(Survey, self).open_questionfile()
+		survey_dict = self.open_surveyfile()
+		course_list = self.get_courselist()
+
+		if course_name in survey_dict:
+			if question_to_add[0] not in survey_dict[course_name]:
+				survey_dict[course_name].append(question_to_add[0])
+			else:
+				flash('Question already added')
+		else:
+			survey_dict[course_name] = question_to_add
+
+		with open(self.survey_filename, 'w') as f:
+			survey_dict = json.dumps(survey_dict)
+			f.write(survey_dict)
+			f.close()
+
+	def get_questions_in_course(self, course_name):
+		survey_dict = self.open_surveyfile()
+		if course_name in survey_dict:
+			return survey_dict[course_name]
+		else:
+			return []
+
+	def get_answers_to_questions(self, question_list):
+		question_answer = {}
+		for question in question_list:
+			question_answer[question] = super(Survey, self).view_answers(question)
+		return question_answer

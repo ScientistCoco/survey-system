@@ -1,0 +1,25 @@
+body{
+  background:#fff;
+}
+
+.navbar{
+  min-height: 33px;
+  height: 100%;
+  background:#79c0b2;
+}
+
+.navbar li a{
+  color: #fff;
+  margin-right: 40px;
+}
+
+.form-col{
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 2%;
+  padding: 0px;
+}
+
+.glyphicon{
+  font-size: 12px;
+}

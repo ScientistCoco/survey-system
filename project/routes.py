@@ -1,98 +1,71 @@
-# Contains the redirects
-from flask import Flask, render_template, redirect, request, url_for, flash, session
-from server import app, user_details
-from classes import Admin
-import csv, json, os
-from functools import wraps
+from flask import Flask, render_template, request, session, url_for, redirect
+from classes import Login, Admin, Survey
 
-admin_user = Admin('Help', user_details['password'], 'COMP', 'questions.txt', 'courses.csv')
+app = Flask(__name__, static_url_path = '/static')
+app.config["SECRET_KEY"] = "survey-system-w09a-pistachios"
 
-# Make a function decorater to check if the user is an admin
-def check_is_admin(f):
-	@wraps(f)
-	def wrapper(*args, **kwargs):
-		if 'user' not in session:
-			flash('You are not logged in')
-			return redirect(url_for("admin_login"))
-		else:
-			return f(*args, **kwargs)
-	return wrapper
+user_details = {'username': 'Admin', 'password': 'password'}
 
-@app.route("/")
+admin = Admin('question_file.txt')
+
+@app.route("/", methods = ["POST","GET"])
 def index():
-	return render_template("home_page.html")
-
-@app.route("/admin_login", methods = ["POST", "GET"])
-def admin_login():
 	if request.method == "POST":
-		# Get the data that the user entered
-		session['user'] = request.form["user_name"]
-		password_entered = request.form["password"]
+		session['user'] = request.form['user_name']
+		password_entered = request.form['password']
+		login_id = Login(session['user'], password_entered)
 
-		# Then check that the user has entered the correct details
-		# If correct then redirect to the admin tool page
-		# Else show a message that login failed and allow them to try again
-		if session['user'] == user_details['username'] and password_entered == user_details['password']:
-			return redirect(url_for("admin_tools"))
+		if login_id.authenticate(**user_details) == True:
+			return redirect(url_for('dashboard'))
 		else:
-			flash('You failed to login, try again')
-			return redirect(url_for("admin_login"))
+			return 'Bad'
+	return render_template('index_page.html')
 
-	return render_template("login_page.html")
-
-@app.route("/student_page")
-def student_page():
-	return render_template("student_page.html")
-
-@app.route("/admin_tools", methods = ["POST", "GET"])
-@check_is_admin
-def admin_tools():
-	if session['user'] == user_details.get('username'):
-		return render_template("admin_tools.html")
-	else:
-		return "You are not authorized to view this page"
-
-@app.route("/logout")
-def logout():
-	session.pop('user', None)
-	return redirect(url_for('index'))
-
-@app.route("/create_questions", methods = ["POST", "GET"])
-@check_is_admin
-def create_questions():
+@app.route("/dashboard")
+def dashboard():
+	return render_template('dashboard.html')
+	
+@app.route("/question", methods = ["POST", "GET"])
+def question_page():
+	question_from_server = []
+	answer_list = []
 	if request.method == "POST":
-		admin_user.create_questions()
-		return redirect(url_for("create_questions"))
-	return render_template("create_questions.html")
+		question_from_server = request.form.get('question_entered')
+		answer_list = request.form.getlist('answer_entered[]')
+		admin.add_question(question_from_server, answer_list)
+		#for answer in answer_list:
+			#admin.add_answers(answer, question_from_server)
+		#admin.add_answers(answer_from_server, question_from_server)
+		#answer_list = admin.view_answers(question_from_server)
+	question_answer = {}
+	question_list = admin.open_questionfile()
+	for question in question_list:
+		question_answer[question] = admin.view_answers(question)
+	return render_template('question_page.html', question_answer = question_answer)
 
-@app.route("/view_questions")
-@check_is_admin
-def view_questions():
-	question_entered = admin_user.checking_question_file_exists()
-	return render_template("view_questions.html", all_questions = question_entered)
-
+selected_course = ''
 @app.route("/survey_creation", methods = ["POST", "GET"])
-@check_is_admin
 def survey_creation():
-	course_list = []
-	list_of_question_for_course = []
-	survey_from_file = {}
-	selected_course = ''	
-	admin_user.create_survey(course_list, list_of_question_for_course, survey_from_file, selected_course, survey_from_file)
-	return render_template("survey_creation.html", course_list = admin_user.course_list,
-		question_list = admin_user.question_entered, questions_added = admin_user.list_of_question_for_course,
-		course_url = admin_user.selected_course)
+	survey = Survey('survey_course.txt', 'question_file.txt', 'courses.csv')
 
-@app.route("/answer_survey/<course>", methods = ['GET', 'POST'])
-def answer_survey(course):
-	#Load the survey json file which contains the course and their respective questions
-	if os.path.isfile('survey_course.txt'):
-		f = open('survey_course.txt', 'r')
-		survey_from_file = json.load(f)
-		f.close()
-		if course not in survey_from_file:
-			return "No surveys have been created"
-	else:
-		return "No surveys have been created"
+	if (request.form.get('course-selected')):
+		selected_course = request.form.get('course-selected')
+		question_in_course = survey.get_questions_in_course(selected_course)
+		question_answer = survey.get_answers_to_questions(question_in_course)
+		for key in question_answer:
+			return question_answer[key]
+		return render_template("survey_creation.html", course_list = survey.get_courselist(),
+			question_list = admin.open_questionfile(), question_in_course = question_in_course,
+			course_selected = selected_course)
+		#return redirect(url_for('survey_creation',
+			#question_in_course = survey.get_questions_in_course(selected_course)))
+	if (request.form.getlist('question-selected')):
+		selected_course = request.form.get('course_selected')
+		selected_question = request.form.getlist('question-selected')
+		survey.add_question_to_survey(selected_course, selected_question)
 
-	return render_template("survey_form.html", course_survey = survey_from_file[course], course_name = course) 
+	return render_template("survey_creation.html", course_list = survey.get_courselist(),
+		question_list = admin.open_questionfile())
+
+from routes import app
+app.run(debug=True)
