@@ -60,29 +60,13 @@ class Survey(Admin):
 
 
 	def add_question_to_survey(self, course_name, question_to_add):
-		question_list = super(Survey, self).open_questionfile()
-		survey_dict = self.open_surveyfile()
-		course_list = self.get_courselist()
-
-		if course_name in survey_dict:
-			if question_to_add[0] not in survey_dict[course_name]:
-				survey_dict[course_name].append(question_to_add[0])
-			else:
-				flash('Question already added')
-		else:
-			survey_dict[course_name] = question_to_add
-
-		with open(self.survey_filename, 'w') as f:
-			survey_dict = json.dumps(survey_dict)
-			f.write(survey_dict)
-			f.close()
+		#First find id of the question_to_add
+		question_id = controller.search_questionID(question_to_add)
+		controller.add_to_survey(course_name, question_id)
 
 	def get_questions_in_course(self, course_name):
-		survey_dict = self.open_surveyfile()
-		if course_name in survey_dict:
-			return survey_dict[course_name]
-		else:
-			return []
+		all_questions = controller.search_surveyID(course_name)
+		return all_questions
 
 	def get_answers_to_questions(self, question_list):
 		question_answer = {}

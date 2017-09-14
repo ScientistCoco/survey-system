@@ -84,16 +84,19 @@
 				<th style = "width:15%"> 5 </th>
 			</tr>
 		</thead>
-		<tbody>
-			{% for question in question_in_course %}
-			<tr>
-				<th scope = "row">{{question}}</th>
-				{% for answer in answer_list %}
-				<td>{{answer}}</td>
-				{% endfor %}
-			</tr>
-			{% endfor %}
-		</tbody>
+  </thead>
+  <tbody>
+    {% if question_answer %}
+    {% for key, values in question_answer.items() %}
+    <tr>
+      <th scope = "row">{{key}}</th>
+      {% for value in values %}
+      <td>{{value}}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+    {% endif %}
+  </tbody>
 	</table>
 	</div>
 
