@@ -20,7 +20,7 @@
             <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Questions</a>
+            <a class="nav-link" href="{{url_for('question_page')}}">Questions</a>
           </li>
           <li class="nav-item active">
             <a class="nav-link" href="#">Survey</a>
@@ -40,12 +40,13 @@
 	<body>
 
 	<div class = "form-col">
-	<form class = "course-select" method = "GET">
+	<form class = "course-select", method = "POST">
 	<label class " course_name" for "inlineFormCustomSelect"> Pick the course </label>
 	<div class = "input-group">
-			<select class = "custom-select form-control" name = "course-selected" id = "course-selected">
-				{% for x in course_list %}
-					<option value = "{{x}}"{% if loop.first %} SELECTED {% endif %}>{{x}}</option>
+			<select class = "custom-select form-control" name = "course-selected" onchange = 'this.form.submit()'>
+          <option value = "" disabled selected> Pick the course </option>
+        {% for x in course_list %}
+					<option value = "{{x}}">{{x}}</option>
 				{% endfor %}
 			</select>
 			<!--<span class = "input-group-btn">
@@ -57,26 +58,38 @@
 
 	<div class = "form-col">
 	<form class = "question-select" method = "POST">
-	<input type = "hidden" name = "course_selected" value = "{{course_selected}}">
+	<input type = "hidden" name = "question_selected" value = "{{course_selected}}">
 	<label class " question-select-label" for "inlineFormCustomSelect"> Pick the Question </label>
 	<div class = "input-group">
+      <input value = '{{course_selected}}' name = "course_selected" type = "hidden">
 			<select class = "custom-select form-control" name = "question-selected">
 				{% for x in question_list %}
 					<option value = "{{x}}"{% if loop.first %} SELECTED {% endif %}>{{x}}</option>
 				{% endfor %}
 			</select>
 			<span class = "input-group-btn">
-				<button class = "btn btn-primary" type = 'Submit'><i class = "fa fa-plus"></i></button>
+				<button class = "btn btn-primary" name = 'submit'><i class = "fa fa-plus"></i></button>
 			</span>
+
 	</div>
 	</form>
 	</div>
 
+  {% if course_selected %}
+  <div class = "form-col">
+    <div class = "alert alert-primary" role = "alert">
+      {{course_selected}}
+    </div>
+  </div>
+  {% endif %}
+  <form method = "POST">
 	<div class = "form-col">
+    <input value = '{{course_selected}}' name = "course_selected" type = "hidden">
 	<table class = "table table-bordered">
 		<thead>
 			<tr>
-				<th style = "width:25%"> Questions in course survey </th>
+        <th style = "width:5%"> <input disabled selected type = "checkbox"></th>
+				<th style = "width:20%"> Questions in course survey </th>
 				<th style = "width:15%"> 1 </th>
 				<th style = "width:15%"> 2 </th>
 				<th style = "width:15%"> 3 </th>
@@ -89,6 +102,7 @@
     {% if question_answer %}
     {% for key, values in question_answer.items() %}
     <tr>
+      <td> <input type = "checkbox" value = "{{key}}" name = 'checkbox_value'></label>
       <th scope = "row">{{key}}</th>
       {% for value in values %}
       <td>{{value}}</td>
@@ -98,8 +112,9 @@
     {% endif %}
   </tbody>
 	</table>
+  <button name = "submit" value = "delete_question" class = "btn btn-primary">Delete selected questions</button>
 	</div>
-
+  </form>
 	<!--
 	<form method = "POST" >
 		<input type = "button" value = "Select a course:"/>
@@ -150,17 +165,6 @@
 	<script src="static/js/bootstrap.min.js"></script>
 	<script src = "static/js/dropdown.js"></script>
   <!-- Script for getting value in dropdown menu -->
-  <script>
-    $("#course-selected").change(function(){
-      var course = this.value;
-      //alert(course)
-      //.get("survey_creation.html", {'course-selected':course}, alert(course));
-      $.ajax({
-        success: function(msg){
-          alert("Ok");
-        }
-      });
-    });
-  </script>
+
 </body>
 </html>

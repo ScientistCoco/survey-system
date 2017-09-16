@@ -44,6 +44,13 @@ class Controller(object):
         model = SurveyModel()
         model.add_answerText(answerID, questionID, answerText)
 
+    def delete_question(self, questionID):
+        model = SurveyModel()
+        model.delete_question(questionID)
+
+    def delete_question_from_survey(self, questionID, course_name):
+        model = SurveyModel()
+        model.delete_question_from_survey(questionID, course_name)
 # Model
 class SurveyModel(object):
     def search_surveyID(self, course_name):
@@ -72,7 +79,7 @@ class SurveyModel(object):
 
     # Returns the id corresponding to the question
     def search_questionID(self, question_text):
-        query = "SELECT questionID from question where question_text = '%s'" %question_text
+        query = "SELECT questionID from question where question_text = '%s'" %(question_text)
         question = self._dbselect(query)
         return question
 
@@ -89,6 +96,15 @@ class SurveyModel(object):
         query = "INSERT INTO answer VALUES ('%s', '%s', '%s')" %(answerID, questionID, answerText)
         self._dbinsert(query)
 
+    def delete_question(self, questionID):
+        query = "DELETE FROM question WHERE questionID = '%s'" %questionID
+        self._dbinsert(query)
+        query = "DELETE FROM answer where answerID = '%s'" %questionID
+        self._dbinsert(query)
+
+    def delete_question_from_survey(self, questionID, course_name):
+        query = "DELETE FROM survey WHERE (questionID = '%s' AND course_name = '%s')" %(questionID, course_name)
+        self._dbinsert(query)
 
     # For searching items in the database and returning the results
     def _dbselect(self, query):
@@ -131,7 +147,6 @@ class SurveyView(object):
     def view_survey_questions(self, all_questions):
         return all_questions
 # Testing bitss
-controller = Controller()
 #print(controller.search_surveyID('COMP1521'))
 #controller.add_to_survey('COMP1521', '28')
 #print(controller.search_surveyID('COMP1521'))

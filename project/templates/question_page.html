@@ -25,7 +25,7 @@
             <a class="nav-link" href="#">Questions</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Survey</a>
+            <a class="nav-link" href="{{url_for('survey_creation')}}">Survey</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Responses</a>
@@ -61,16 +61,18 @@
       </div>
 
       <div class = "form-col">
-        <button type = "submit" class = "btn btn-primary">Submit</button>
+        <button name = "submit" class = "btn btn-primary" value = "add_question">Submit</button>
       </div>
     </form>
 
 		<!-- Display the multiple choice answers-->
+    <form method = "POST">
     <div class = "form-col">
     <table class = "table table-bordered">
       <thead>
         <tr>
-          <th style = "width:25%"> Questions in course survey </th>
+          <th style = "width:5%" > <input disabled selected type = "checkbox"></label>
+          <th style = "width:20%"> Questions in course survey </th>
           <th style = "width:15%"> 1 </th>
           <th style = "width:15%"> 2 </th>
           <th style = "width:15%"> 3 </th>
@@ -81,6 +83,7 @@
       <tbody>
         {% for key, values in question_answer.items() %}
         <tr>
+          <td> <input type = "checkbox" value = "{{key}}" name = 'checkbox_value'></label>
           <th scope = "row">{{key}}</th>
           {% for value in values %}
           <td>{{value}}</td>
@@ -89,7 +92,9 @@
         {% endfor %}
       </tbody>
     </table>
+    <button name = "submit" class = "btn btn-primary" value = "delete_question">Delete selected questions</button>
     </div>
+    </form>
 		<!--<form method = "POST">
 		<input name = "question_entered" placeholder = "Enter the question">
 		</br>

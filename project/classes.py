@@ -34,6 +34,10 @@ class Admin:
 		answer_list = controller.search_answerText(question_id)
 		return answer_list
 
+	def delete_question(self, question_to_delete):
+		question_id = controller.search_questionID(question_to_delete)
+		controller.delete_question(question_id)
+
 class Survey(Admin):
 	def __init__(self, survey_filename, question_filename, course_filename):
 		Admin.__init__(self, question_filename)
@@ -73,3 +77,7 @@ class Survey(Admin):
 		for question in question_list:
 			question_answer[question] = super(Survey, self).view_answers(question)
 		return question_answer
+
+	def delete_question_from_survey(self, question_to_delete, course_name):
+		question_id = controller.search_questionID(question_to_delete)
+		controller.delete_question_from_survey(question_id, course_name)

@@ -30,13 +30,15 @@ def question_page():
 	question_from_server = []
 	answer_list = []
 	if request.method == "POST":
-		question_from_server = request.form.get('question_entered')
-		answer_list = request.form.getlist('answer_entered[]')
-		admin.add_question(question_from_server, answer_list)
-		#for answer in answer_list:
-			#admin.add_answers(answer, question_from_server)
-		#admin.add_answers(answer_from_server, question_from_server)
-		#answer_list = admin.view_answers(question_from_server)
+		if request.form['submit'] == 'add_question':
+			question_from_server = request.form.get('question_entered')
+			answer_list = request.form.getlist('answer_entered[]')
+			admin.add_question(question_from_server, answer_list)
+		elif request.form['submit'] == 'delete_question':
+			question_to_delete = request.form.getlist('checkbox_value')
+			for question in question_to_delete:
+				admin.delete_question(question)
+			# Returns a list of the options selected
 	question_answer = {}
 	question_list = admin.open_questionfile()
 	for question in question_list:
@@ -48,7 +50,8 @@ selected_course = ''
 def survey_creation():
 	survey = Survey('survey_course.txt', 'question_file.txt', 'courses.csv')
 
-	if (request.args.get('course-selected')):
+	#if (request.form.get('course-selected')):
+	if request.form.getlist('course-selected'):
 		selected_course = request.form.get('course-selected')
 		question_in_course = survey.get_questions_in_course(selected_course)
 		question_answer = {}
@@ -58,15 +61,22 @@ def survey_creation():
 		return render_template("survey_creation.html", course_list = survey.get_courselist(),
 			question_list = admin.open_questionfile(), question_answer = question_answer,
 			course_selected = selected_course)
-		#return redirect(url_for('survey_creation',
-			#question_in_course = survey.get_questions_in_course(selected_course)))
-	if (request.form.getlist('question-selected')):
+
+	elif (request.form.getlist('question-selected')):
 		selected_course = request.form.get('course_selected')
 		selected_question = request.form.get('question-selected')
 		survey.add_question_to_survey(selected_course, selected_question)
 
+	if request.method == "POST":
+		if request.form['submit'] == 'delete_question':
+			selected_course = request.form.get('course_selected')
+			question_to_delete = request.form.getlist('checkbox_value')
+			for question in question_to_delete:
+				survey.delete_question_from_survey(question, selected_course)
+
 	return render_template("survey_creation.html", course_list = survey.get_courselist(),
 		question_list = admin.open_questionfile())
 
+#@app.route('/get_course_questions')
 from routes import app
 app.run(debug=True)
