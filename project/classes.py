@@ -28,7 +28,11 @@ class Login:
 		cur = con.cursor()
 		# We want to check that the username and password matches the one in the database
 		cur.execute("SELECT EXISTS(SELECT * FROM login_details WHERE id = ? and password = ?)", (self._username, self._password))
-
+		# Side note, we don't want to do "where id = '%s' and password = '%s'" %(user, password)
+		# because if someone passed in user = "test" password = "my" OR 1=1; --
+		# The cursor would then evaluate SELECT * from table where user = "test" and password = "my" OR 1=1; --
+		# as a result they could login as any user by changing the input, it also allows
+		# them to execute any command on the database --> sql injection
 		if cur.fetchone()[0] == 1:
 			con.close()
 			return True

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, url_for, redirect
 from classes import Login, Admin, Survey, StudentAnswers
+from flask.ext.login import LoginManager
 
 app = Flask(__name__, static_url_path = '/static')
 app.config["SECRET_KEY"] = "survey-system-w09a-pistachios"
@@ -7,7 +8,8 @@ app.config["SECRET_KEY"] = "survey-system-w09a-pistachios"
 user_details = {'username': 'Admin', 'password': 'password'}
 
 admin = Admin('question_file.txt')
-
+login = LoginManager()
+login_manager.init_app(app)
 @app.route("/", methods = ["POST","GET"])
 def index():
 	if request.method == "POST":
@@ -18,11 +20,13 @@ def index():
 		if login_id.authenticate() == True:
 			return redirect(url_for('dashboard'))
 		else:
-			return 'Bad'
+			return render_template('login_page.html', login_state = 'failed')
 	return render_template('login_page.html')
 
 @app.route("/dashboard")
 def dashboard():
+	# We then need to check the type of the user, if its a staff we direct to the
+	# staff dashboard, else if its student they go to student dashboard
 	return render_template('dashboard.html')
 
 @app.route("/question", methods = ["POST", "GET"])
