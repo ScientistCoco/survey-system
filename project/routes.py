@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, url_for, redirect
-from classes import Login, Admin, Survey
+from classes import Login, Admin, Survey, StudentAnswers
 
 app = Flask(__name__, static_url_path = '/static')
 app.config["SECRET_KEY"] = "survey-system-w09a-pistachios"
@@ -77,6 +77,26 @@ def survey_creation():
 	return render_template("survey_creation.html", course_list = survey.get_courselist(),
 		question_list = admin.open_questionfile())
 
-#@app.route('/get_course_questions')
+@app.route("/answer_survey/<course_name>", methods = ["POST", "GET"])
+def answer_survey(course_name):
+	# First check that surveys for that course exist, if it doesn't return an error message
+	question_answer = {}
+	survey = Survey('survey_course.txt', 'question_file.txt', 'courses.csv')
+	student_answers = StudentAnswers()
+	questions = survey.search_for_course_questions(course_name)
+	if not questions:
+		return 'No surveys for this course'
+	else:
+		# If there are questions, we want to find the answers then make a dictionary
+		# so that the answer and question are related
+		question_answer = survey.get_answers_to_questions(questions)
+		if request.method == "POST":
+			for k in question_answer:
+				answer = request.form.get(k)
+				student_answers.add_answers(course_name, k, answer)
+			return 'Answer Saved'
+		return render_template("survey_form.html", course_name = course_name, question_answer = question_answer)
+
+
 from routes import app
 app.run(debug=True)

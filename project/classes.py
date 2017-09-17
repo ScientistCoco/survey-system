@@ -52,6 +52,11 @@ class Survey(Admin):
 			f.close()
 		return survey_file
 
+	def search_for_course_questions(self, course_name):
+		questions = []
+		questions = controller.search_surveyID(course_name)
+		return questions
+
 	def get_courselist(self):
 		course_list = []
 		f = open(self.course_filename)
@@ -81,3 +86,11 @@ class Survey(Admin):
 	def delete_question_from_survey(self, question_to_delete, course_name):
 		question_id = controller.search_questionID(question_to_delete)
 		controller.delete_question_from_survey(question_id, course_name)
+
+class StudentAnswers:
+	def init(self):
+		pass
+
+	def add_answers(self, course_name, question, answer_picked):
+		questionID = controller.search_questionID(question)
+		controller.add_to_answer_database(course_name, questionID, answer_picked)

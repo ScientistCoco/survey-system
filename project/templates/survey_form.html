@@ -1,27 +1,48 @@
 <!DOCTYPE html>
-	<h3> Questions for {{course_name}} </h3>
-	{% for question in course_survey %}
-		{{question}}
-		<form>
-			<!-- The radio input type displays a radio button that the user
-			can toggle on and off. When building a list of radio buttons, the name
-			attribute must be identical for each option in the list.
-			This ensures that only one radio input in the group can be selected.
-			When the form is submitted, it will include the contents of the value
-			attribute corresponding to the selected radio button -->
-			<input type = "radio" name = answer value = "1"> 1
-			<input type = "radio" name = answer value = "2"> 2
-			<input type = "radio" name = answer value = "3"> 3
-			<input type = "radio" name = answer value = "4"> 4
-			<input type = "radio" name = answer value = "5"> 5
-		</form>
-		</br>
-	{% endfor %}
-	<button onclick = "answers_accepted()">Submit answers</button> <!-- On click it should flash that answers were accepted -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter Template for Bootstrap</title>
 
-	<script>
-	function answers_accepted(){
-		alert("Answers were accepted! Thanks");
-	}
-	</script>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link type=text/css href="{{ url_for('static', filename='css/style.css') }}" rel = "stylesheet">
+  </head>
+
+  <body>
+
+<body>
+	<div class = "form-col">
+		<div class="alert alert-primary" role="alert">
+  		Survey for {{course_name}}
+		</div>
+	</div>
+
+	<!-- Questions for the survey -->
+	<form method = "POST">
+	<div class = "form-col">
+		{% for key, values in question_answer.items() %}
+			<h5>{{key}}</h5> </br>
+			{% for value in values %}
+			<div class="form-check form-check-inline">
+  			<label class="form-check-label">
+    			<input class="form-check-input" type="radio" name="{{key}}" value="{{value}}"> {{value}}
+  			</label>
+			</div>
+			{% endfor %}
+		{% endfor %}
+		</br>
+		<button name = "submit" class = "btn btn-primary" value = "submit_answers">Submit</button>
+	</div>
+	</form>
+
+	<!-- Bootstrap core JavaScript
+	================================================== -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+	<script src="static/js/bootstrap.min.js"></script>
+	<script src = "static/js/dropdown.js"></script>
+</body>
 </html>

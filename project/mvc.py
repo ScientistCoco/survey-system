@@ -9,10 +9,8 @@ class Controller(object):
         model = SurveyModel()
         view = SurveyView()
         # Return a list of all the questions in the course survey
-        # by returning the questionID
         all_questions = model.search_surveyID(course_name)
         return view.view_survey_questions(all_questions)
-        pass
 
     def add_to_survey(self, course_name, questionID):
         model = SurveyModel()
@@ -51,6 +49,11 @@ class Controller(object):
     def delete_question_from_survey(self, questionID, course_name):
         model = SurveyModel()
         model.delete_question_from_survey(questionID, course_name)
+
+    # Adds the survey responses to the survey_answer table
+    def add_to_answer_database(self, course_name, questionID, answer_picked):
+        model = SurveyModel()
+        model.add_to_answer_database(course_name, questionID, answer_picked)
 # Model
 class SurveyModel(object):
     def search_surveyID(self, course_name):
@@ -106,6 +109,9 @@ class SurveyModel(object):
         query = "DELETE FROM survey WHERE (questionID = '%s' AND course_name = '%s')" %(questionID, course_name)
         self._dbinsert(query)
 
+    def add_to_answer_database(self, course_name, questionID, answer_text):
+        query = "INSERT INTO survey_answers VALUES ('%s', '%s', '%s')" %(course_name, questionID, answer_text)
+        self._dbinsert(query)
     # For searching items in the database and returning the results
     def _dbselect(self, query):
         connection = sqlite3.connect('survey_database.db')
@@ -145,8 +151,12 @@ class SurveyView(object):
         return question_list
 
     def view_survey_questions(self, all_questions):
-        return all_questions
+        questions = []
+        for question in all_questions:
+            questions.append(question)
+        return questions
 # Testing bitss
+#controller = Controller()
 #print(controller.search_surveyID('COMP1521'))
 #controller.add_to_survey('COMP1521', '28')
-#print(controller.search_surveyID('COMP1521'))
+#print(controller.search_surveyID('COMP1531'))
