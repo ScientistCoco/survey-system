@@ -1,18 +1,43 @@
 from flask import flash
-import os, json, csv, random
+import os, json, csv, random, sqlite3
 from mvc import Controller, SurveyModel, SurveyView
 controller = Controller()
+
 class Login:
 	def __init__(self, username, password):
 		self._username = username
 		self._password = password
 
-	def authenticate(self, **user_details):
-		if self._username == user_details['username'] and self._password == user_details['password']:
+	# Creates the database for the login username and password
+	def _get_login_file(self):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+		cur.execute("CREATE TABLE IF NOT EXISTS login_details (id text primary key not null, password text not null, type text not null);") # use your column names here
+
+		with open('passwords.csv','r') as f:
+    # csv.DictReader uses first line in file for column headings by default
+			dr = csv.DictReader(f)
+			to_db = [(i['id'], i['password'], i['type']) for i in dr]
+		cur.executemany("INSERT OR REPLACE INTO login_details (id, password, type) VALUES (?, ?, ?);", to_db)
+		con.commit()
+		con.close()
+
+	def authenticate(self):
+		self._get_login_file()
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+		# We want to check that the username and password matches the one in the database
+		cur.execute("SELECT EXISTS(SELECT * FROM login_details WHERE id = ? and password = ?)", (self._username, self._password))
+
+		if cur.fetchone()[0] == 1:
+			con.close()
 			return True
 		else:
+			con.close()
 			return False
 
+#test = Login('997', 'student975')
+#print(test.authenticate())
 class Admin:
 
 	def __init__(self, question_filename):
@@ -62,7 +87,6 @@ class Survey(Admin):
 		f = open(self.course_filename)
 		reader = csv.reader(f)
 		courses_from_file = list(reader)
-		del courses_from_file[0]
 		for course in courses_from_file:
 			course_list = course_list + course
 		return course_list

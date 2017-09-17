@@ -11,15 +11,15 @@ admin = Admin('question_file.txt')
 @app.route("/", methods = ["POST","GET"])
 def index():
 	if request.method == "POST":
-		session['user'] = request.form['user_name']
+		session['user'] = request.form['ID']
 		password_entered = request.form['password']
 		login_id = Login(session['user'], password_entered)
 
-		if login_id.authenticate(**user_details) == True:
+		if login_id.authenticate() == True:
 			return redirect(url_for('dashboard'))
 		else:
 			return 'Bad'
-	return render_template('index_page.html')
+	return render_template('login_page.html')
 
 @app.route("/dashboard")
 def dashboard():
