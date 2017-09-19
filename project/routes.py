@@ -1,35 +1,61 @@
-from flask import Flask, render_template, request, session, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect
 from classes import Login, Admin, Survey, StudentAnswers
-from flask.ext.login import LoginManager
+from flask_login import LoginManager, login_required, login_user, UserMixin, logout_user
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__, static_url_path = '/static')
 app.config["SECRET_KEY"] = "survey-system-w09a-pistachios"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///survey_database.db'
 
+db = SQLAlchemy(app)
 user_details = {'username': 'Admin', 'password': 'password'}
 
 admin = Admin('question_file.txt')
-login = LoginManager()
+login_manager = LoginManager()
 login_manager.init_app(app)
+
+class User(UserMixin, db.Model):
+	__tablename__ = 'login_details'
+	username = db.Column('id', db.String(50), primary_key = True)
+	password = db.Column('password', db.String(50))
+	type = db.Column('type', db.String(50))
+
+	def get_id(self):
+		return str(self.username)
+
+@login_manager.user_loader
+def load_user(username):
+	return User.query.filter_by(username = username).first()
+
 @app.route("/", methods = ["POST","GET"])
 def index():
 	if request.method == "POST":
-		session['user'] = request.form['ID']
+		username = request.form['ID']
 		password_entered = request.form['password']
-		login_id = Login(session['user'], password_entered)
-
-		if login_id.authenticate() == True:
-			return redirect(url_for('dashboard'))
-		else:
+		#login_id = Login(session['user'], password_entered)
+		registered_user = User.query.filter_by(username = username, password = password_entered).first()
+		if registered_user is None:
 			return render_template('login_page.html', login_state = 'failed')
+		else:
+			login_user(registered_user)
+			return redirect(url_for('dashboard'))
 	return render_template('login_page.html')
 
+@app.route("/logout")
+@login_required
+def logout():
+	logout_user()
+	return redirect(url_for('index'))
+
 @app.route("/dashboard")
+@login_required
 def dashboard():
 	# We then need to check the type of the user, if its a staff we direct to the
 	# staff dashboard, else if its student they go to student dashboard
 	return render_template('dashboard.html')
 
 @app.route("/question", methods = ["POST", "GET"])
+@login_required
 def question_page():
 	question_from_server = []
 	answer_list = []
@@ -51,6 +77,7 @@ def question_page():
 
 selected_course = ''
 @app.route("/survey_creation", methods = ["POST", "GET"])
+@login_required
 def survey_creation():
 	survey = Survey('survey_course.txt', 'question_file.txt', 'courses.csv')
 
