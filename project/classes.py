@@ -3,49 +3,10 @@ import os, json, csv, random, sqlite3
 from mvc import Controller, SurveyModel, SurveyView
 controller = Controller()
 
-class Login:
-	def __init__(self, username, password):
-		self._username = username
-		self._password = password
-
-	# Creates the database for the login username and password
-	def _get_login_file(self):
-		con = sqlite3.connect("survey_database.db")
-		cur = con.cursor()
-		cur.execute("CREATE TABLE IF NOT EXISTS login_details (id text primary key not null, password text not null, type text not null);") # use your column names here
-
-		with open('passwords.csv','r') as f:
-    # csv.DictReader uses first line in file for column headings by default
-			dr = csv.DictReader(f)
-			to_db = [(i['id'], i['password'], i['type']) for i in dr]
-		cur.executemany("INSERT OR REPLACE INTO login_details (id, password, type) VALUES (?, ?, ?);", to_db)
-		con.commit()
-		con.close()
-
-	def authenticate(self):
-		self._get_login_file()
-		con = sqlite3.connect("survey_database.db")
-		cur = con.cursor()
-		# We want to check that the username and password matches the one in the database
-		cur.execute("SELECT EXISTS(SELECT * FROM login_details WHERE id = ? and password = ?)", (self._username, self._password))
-		# Side note, we don't want to do "where id = '%s' and password = '%s'" %(user, password)
-		# because if someone passed in user = "test" password = "my" OR 1=1; --
-		# The cursor would then evaluate SELECT * from table where user = "test" and password = "my" OR 1=1; --
-		# as a result they could login as any user by changing the input, it also allows
-		# them to execute any command on the database --> sql injection
-		if cur.fetchone()[0] == 1:
-			con.close()
-			return True
-		else:
-			con.close()
-			return False
-
-#test = Login('997', 'student975')
-#print(test.authenticate())
 class Admin:
 
-	def __init__(self, question_filename):
-		self.question_filename = question_filename
+	def __init__(self):
+		pass
 
 	def open_questionfile(self):
 		questions = controller.view_all_questions()
@@ -68,9 +29,8 @@ class Admin:
 		controller.delete_question(question_id)
 
 class Survey(Admin):
-	def __init__(self, survey_filename, question_filename, course_filename):
-		Admin.__init__(self, question_filename)
-		self.survey_filename = survey_filename
+	def __init__(self, course_filename):
+		Admin.__init__(self)
 		self.course_filename = course_filename
 
 	def open_surveyfile(self):

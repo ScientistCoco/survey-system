@@ -1,16 +1,16 @@
-from flask import Flask, render_template, request, url_for, redirect
-from classes import Login, Admin, Survey, StudentAnswers
-from flask_login import LoginManager, login_required, login_user, UserMixin, logout_user
+from flask import Flask, render_template, request, url_for, redirect, current_app
+from classes import Admin, Survey, StudentAnswers
+from flask_login import LoginManager, login_required, login_user, UserMixin, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
+from functools import wraps
 
 app = Flask(__name__, static_url_path = '/static')
 app.config["SECRET_KEY"] = "survey-system-w09a-pistachios"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///survey_database.db'
 
 db = SQLAlchemy(app)
-user_details = {'username': 'Admin', 'password': 'password'}
 
-admin = Admin('question_file.txt')
+admin = Admin()
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -22,6 +22,21 @@ class User(UserMixin, db.Model):
 
 	def get_id(self):
 		return str(self.username)
+
+# Making the function decorator to check that user is logged in
+# source code: https://stackoverflow.com/questions/15871391/implementing-flask-login-with-multiple-user-classes
+def login_required(role = "ANY"):
+	def wrapper(fn):
+		@wraps(fn)
+		def decorated_view(*args, **kwargs):
+			if not current_user.is_authenticated:
+				return current_app.login_manager.unauthorized()
+			# Then we check the type of the user
+			if ((current_user.type != role) and (role != "ANY")):
+				return current_app.login_manager.unauthorized()
+			return fn(*args, **kwargs)
+		return decorated_view
+	return wrapper
 
 @login_manager.user_loader
 def load_user(username):
@@ -42,20 +57,20 @@ def index():
 	return render_template('login_page.html')
 
 @app.route("/logout")
-@login_required
+@login_required(role = "ANY")
 def logout():
 	logout_user()
 	return redirect(url_for('index'))
 
 @app.route("/dashboard")
-@login_required
+@login_required(role = "staff")
 def dashboard():
 	# We then need to check the type of the user, if its a staff we direct to the
 	# staff dashboard, else if its student they go to student dashboard
 	return render_template('dashboard.html')
 
 @app.route("/question", methods = ["POST", "GET"])
-@login_required
+@login_required(role = "ANY")
 def question_page():
 	question_from_server = []
 	answer_list = []
@@ -77,9 +92,9 @@ def question_page():
 
 selected_course = ''
 @app.route("/survey_creation", methods = ["POST", "GET"])
-@login_required
+@login_required(role = "ANY")
 def survey_creation():
-	survey = Survey('survey_course.txt', 'question_file.txt', 'courses.csv')
+	survey = Survey('courses.csv')
 
 	#if (request.form.get('course-selected')):
 	if request.form.getlist('course-selected'):
