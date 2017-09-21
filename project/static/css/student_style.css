@@ -1,0 +1,46 @@
+body{
+  background:#fff;
+}
+
+/* http://htmlcolorcodes.com/color-picker/ for the gradients*/
+.navbar{
+  min-height: 33px;
+  height: 100%;
+  background:#E53D3D;
+  background: -webkit-linear-gradient(right, #E53D3D, #E5913D);
+  background: -moz-linear-gradient(right, #E53D3D, #AC2E2E);
+  background: -o-linear-gradient(right, #E5913D, #E5913D);
+  background: linear-gradient(to left, #E53D3D, #EF8686);
+}
+
+.navbar li a{
+  color: #fff;
+  margin-right: 40px;
+}
+
+.form-col{
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 2%;
+  padding: 0px;
+}
+
+.glyphicon{
+  font-size: 12px;
+}
+
+.vertical-center {
+  margin-top: 10%;
+  padding-left: 10%;
+  padding-right: 10%;
+}
+
+.card{
+  margin-right: 20px;
+  height: 300px;
+  background: #D84545;
+}
+
+.card-body{
+  margin-top: 10%;
+}

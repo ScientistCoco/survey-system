@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, current_app
-from classes import Admin, Survey, StudentAnswers
+from classes import Admin, Survey, StudentAnswers, StudentDatabase
 from flask_login import LoginManager, login_required, login_user, UserMixin, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
@@ -53,7 +53,11 @@ def index():
 			return render_template('login_page.html', login_state = 'failed')
 		else:
 			login_user(registered_user)
-			return redirect(url_for('dashboard'))
+			# Then redirect to certain webpage depending on role
+			if registered_user.type == 'student':
+				return redirect(url_for('student_dashboard'))
+			elif registered_user.type == 'staff' :
+				return redirect(url_for('dashboard'))
 	return render_template('login_page.html')
 
 @app.route("/logout")
@@ -68,6 +72,19 @@ def dashboard():
 	# We then need to check the type of the user, if its a staff we direct to the
 	# staff dashboard, else if its student they go to student dashboard
 	return render_template('dashboard.html')
+
+@app.route("/student_dashboard", methods = ["POST", "GET"])
+def student_dashboard():
+	database = StudentDatabase()
+	#database.add_info_enrollments()
+	courses = database.get_student_courses(current_user.get_id())
+	semester = database.get_student_semester(current_user.get_id())
+
+	if request.method == "POST":
+		course_name = request.form.get('course_name')
+		course_semester = course_name + ' ' + semester
+		return redirect(url_for('answer_survey', course_name = course_semester))
+	return render_template('student_page.html', course_list = courses, semester = semester)
 
 @app.route("/question", methods = ["POST", "GET"])
 @login_required(role = "ANY")
@@ -97,10 +114,11 @@ def survey_creation():
 	survey = Survey('courses.csv')
 
 	#if (request.form.get('course-selected')):
-	if request.form.getlist('course-selected'):
+	if request.form.get('course-selected'):
 		selected_course = request.form.get('course-selected')
 		question_in_course = survey.get_questions_in_course(selected_course)
 		question_answer = {}
+
 		for question in question_in_course:
 			question_answer[question] = admin.view_answers(question)
 		#question_answer = survey.get_answers_to_questions(question_in_course)
@@ -127,7 +145,7 @@ def survey_creation():
 def answer_survey(course_name):
 	# First check that surveys for that course exist, if it doesn't return an error message
 	question_answer = {}
-	survey = Survey('survey_course.txt', 'question_file.txt', 'courses.csv')
+	survey = Survey('courses.csv')
 	student_answers = StudentAnswers()
 	questions = survey.search_for_course_questions(course_name)
 	if not questions:

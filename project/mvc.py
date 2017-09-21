@@ -57,7 +57,7 @@ class Controller(object):
 # Model
 class SurveyModel(object):
     def search_surveyID(self, course_name):
-        query = "SELECT questionID from survey where course_name = '%s'" %course_name
+        query = "SELECT questionID from survey where course_name = '%s'" %(course_name)
         questionID = self._dbselect(query)
         # Then make a list of all the questions
         question_list = []

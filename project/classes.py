@@ -3,8 +3,45 @@ import os, json, csv, random, sqlite3
 from mvc import Controller, SurveyModel, SurveyView
 controller = Controller()
 
-class Admin:
+class StudentDatabase():
 
+	def add_info_enrollments(self):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+		cur.execute("CREATE TABLE IF NOT EXISTS student_enrolments (id int not null, course_name text not null, semester text not null, num int primary key not null);") # use your column names here
+
+		with open('enrolments.csv','r') as f:
+     # csv.DictReader uses first line in file for column headings by default
+			dr = csv.DictReader(f)
+			increment = 0;
+			for i in dr:
+				increment = increment + 1
+				to_db = [(i['id'], i['course_name'], i['semester'], increment)]
+				cur.executemany("INSERT OR REPLACE INTO student_enrolments (id, course_name, semester, num) VALUES (?, ?, ?, ?);", to_db)
+				con.commit()
+		con.close()
+
+	def get_student_courses(self, id):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+
+		rows = cur.execute("SELECT course_name FROM student_enrolments WHERE id = ?", (id,))
+		student_courses = []
+		for row in rows:
+			student_courses = student_courses + list(row)
+		con.close()
+		return student_courses
+
+	def get_student_semester(self, id):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+
+		cur.execute("SELECT semester FROM student_enrolments WHERE id = ?", (id,))
+		semester = cur.fetchone()
+		con.close()
+		return semester[0]
+
+class Admin:
 	def __init__(self):
 		pass
 
@@ -33,14 +70,6 @@ class Survey(Admin):
 		Admin.__init__(self)
 		self.course_filename = course_filename
 
-	def open_surveyfile(self):
-		survey_file = {}
-		if os.path.isfile(self.survey_filename):
-			with open(self.survey_filename) as f:
-				survey_file = json.load(f)
-			f.close()
-		return survey_file
-
 	def search_for_course_questions(self, course_name):
 		questions = []
 		questions = controller.search_surveyID(course_name)
@@ -50,9 +79,8 @@ class Survey(Admin):
 		course_list = []
 		f = open(self.course_filename)
 		reader = csv.reader(f)
-		courses_from_file = list(reader)
-		for course in courses_from_file:
-			course_list = course_list + course
+		for row in reader:
+			course_list = course_list + [" ".join(row)]
 		return course_list
 
 
@@ -75,6 +103,8 @@ class Survey(Admin):
 		question_id = controller.search_questionID(question_to_delete)
 		controller.delete_question_from_survey(question_id, course_name)
 
+survey = Survey('courses.csv')
+print(survey.get_courselist())
 class StudentAnswers:
 	def init(self):
 		pass
