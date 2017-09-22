@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
     <link href = "static/css/style.css" rel = "stylesheet">
+    <link href="css/titatoggle-dist.css" rel="stylesheet">
+
   </head>
 
   <body>
@@ -113,6 +115,16 @@
   </tbody>
 	</table>
   <button name = "submit" value = "delete_question" class = "btn btn-primary">Delete selected questions</button>
+
+  <!-- Code source: https://bootsnipp.com/snippets/xzXG -->
+  <div class="btn-group pull-right" id="status" data-toggle="buttons">
+              <label class="btn btn-default btn-on btn-sm active">
+              <input type="radio" value="1" name="multifeatured_module[module_id][status]" checked="checked">OPEN</label>
+              <label class="btn btn-default btn-off btn-sm ">
+              <input type="radio" value="0" name="multifeatured_module[module_id][status]">CLOSE</label>
+  </div>
+  <!-- End code source -->
+
 	</div>
   </form>
 	<!--
