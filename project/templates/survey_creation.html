@@ -80,7 +80,18 @@
   {% if course_selected %}
   <div class = "form-col">
     <div class = "alert alert-primary" role = "alert">
-      {{course_selected}}
+      <form method = "POST">
+      <input value = '{{course_selected}}' name = "course_selected" type = "hidden">
+      <button class = "btn btn-primary" name = "submit" style="float: right" value = 'open'>
+        {% if status == "open" %} Close Survey {% else %} Open Survey {% endif %}</button>
+      <p>{{course_selected}} is
+        {% if status == "open" %}
+        open
+        {% else %}
+        closed
+        {% endif %}
+        for responses</p>
+      </form>
     </div>
   </div>
   {% endif %}
@@ -115,18 +126,9 @@
   </tbody>
 	</table>
   <button name = "submit" value = "delete_question" class = "btn btn-primary">Delete selected questions</button>
-
-  <!-- Code source: https://bootsnipp.com/snippets/xzXG -->
-  <div class="btn-group pull-right" id="status" data-toggle="buttons">
-              <label class="btn btn-default btn-on btn-sm active">
-              <input type="radio" value="1" name="multifeatured_module[module_id][status]" checked="checked">OPEN</label>
-              <label class="btn btn-default btn-off btn-sm ">
-              <input type="radio" value="0" name="multifeatured_module[module_id][status]">CLOSE</label>
-  </div>
-  <!-- End code source -->
-
 	</div>
   </form>
+
 	<!--
 	<form method = "POST" >
 		<input type = "button" value = "Select a course:"/>

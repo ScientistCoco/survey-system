@@ -83,6 +83,12 @@ class Survey(Admin):
 			course_list = course_list + [" ".join(row)]
 		return course_list
 
+	def get_survey_status(self, course_name):
+		status = controller.get_survey_status(course_name)
+		return status
+
+	def change_survey_status(self, course_name):
+		controller.change_survey_status(course_name)
 
 	def add_question_to_survey(self, course_name, question_to_add):
 		#First find id of the question_to_add
@@ -104,7 +110,10 @@ class Survey(Admin):
 		controller.delete_question_from_survey(question_id, course_name)
 
 survey = Survey('courses.csv')
-print(survey.get_courselist())
+print(survey.get_survey_status('SENG2021 17s2'))
+survey.change_survey_status('SENG2021 17s2')
+print(survey.get_survey_status('SENG2021 17s2'))
+
 class StudentAnswers:
 	def init(self):
 		pass

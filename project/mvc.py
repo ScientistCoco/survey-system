@@ -54,6 +54,18 @@ class Controller(object):
     def add_to_answer_database(self, course_name, questionID, answer_picked):
         model = SurveyModel()
         model.add_to_answer_database(course_name, questionID, answer_picked)
+
+    # Find status of survey
+    def get_survey_status(self, course_name):
+        model = SurveyModel()
+        status = model.get_survey_status(course_name)
+        view = SurveyView()
+        return view.view_survey_status(status)
+
+    # Change the status of the survey
+    def change_survey_status(self, course_name):
+        model = SurveyModel()
+        model.change_survey_status(course_name)
 # Model
 class SurveyModel(object):
     def search_surveyID(self, course_name):
@@ -112,6 +124,26 @@ class SurveyModel(object):
     def add_to_answer_database(self, course_name, questionID, answer_text):
         query = "INSERT INTO survey_answers VALUES ('%s', '%s', '%s')" %(course_name, questionID, answer_text)
         self._dbinsert(query)
+
+    def get_survey_status(self, course_name):
+        query = "SELECT availability from survey_availability WHERE course_name = '%s'" %course_name
+        result = self._dbselect(query)
+        # Check if the course exists if it doesn't then we return a closed value
+        if not result:
+            query = "INSERT INTO survey_availability VALUES ('%s', '%s')" %(course_name, 'close')
+            self._dbinsert(query)
+            result = ['close']
+        return result
+
+    def change_survey_status(self, course_name):
+        # First get the status:
+        result = self.get_survey_status(course_name)
+        if result[0] == 'close':
+            query = "UPDATE survey_availability SET availability = 'open' WHERE course_name = '%s'" %(course_name)
+        else:
+            query = "UPDATE survey_availability SET availability = 'close' WHERE course_name = '%s'" %(course_name)
+        self._dbinsert(query)
+
     # For searching items in the database and returning the results
     def _dbselect(self, query):
         connection = sqlite3.connect('survey_database.db')
@@ -155,6 +187,9 @@ class SurveyView(object):
         for question in all_questions:
             questions.append(question)
         return questions
+
+    def view_survey_status(self, status):
+        return status[0]
 # Testing bitss
 #controller = Controller()
 #print(controller.search_surveyID('COMP1521'))

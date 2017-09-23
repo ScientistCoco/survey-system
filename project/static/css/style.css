@@ -24,8 +24,17 @@ body{
   font-size: 12px;
 }
 
-/* Source from : https://bootsnipp.com/snippets/xzXG */
-/* Switch button */
-.btn-default.btn-on.active{background-color: #5BB75B;color: white;}
-.btn-default.btn-off.active{background-color: #DA4F49;color: white;}
-/* End source*/
+.card-title{
+  margin: 0%;
+
+}
+
+.card-body{
+  background: #fff;
+}
+
+.alert p{
+  line-height: 25px;
+  padding-top: 5px;
+  padding-bottom: -25px;
+}
