@@ -163,14 +163,18 @@ def answer_survey(course_name):
 	if not questions:
 		return 'No surveys for this course'
 	else:
-		# If there are questions, we want to find the answers then make a dictionary
-		# so that the answer and question are related
-		question_answer = survey.get_answers_to_questions(questions)
-		if request.method == "POST":
-			for k in question_answer:
-				answer = request.form.get(k)
-				student_answers.add_answers(course_name, k, answer)
-			return 'Answer Saved'
+		# If there are questions, we want to check that the survey is open for answers
+		if survey.get_survey_status(course_name) == 'open':
+			# we want to find the answers then make a dictionary
+			# so that the answer and question are related
+			question_answer = survey.get_answers_to_questions(questions)
+			if request.method == "POST":
+				for k in question_answer:
+					answer = request.form.get(k)
+					student_answers.add_answers(course_name, k, answer)
+				return 'Answer Saved'
+		else:
+			return 'Survey is closed'
 		return render_template("survey_form.html", course_name = course_name, question_answer = question_answer)
 
 
