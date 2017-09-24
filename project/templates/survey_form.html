@@ -7,15 +7,33 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-    <link type=text/css href="{{ url_for('static', filename='css/style.css') }}" rel = "stylesheet">
+    <link type=text/css href="{{ url_for('static', filename='css/student_style.css') }}" rel = "stylesheet">
   </head>
 
   <body>
 
-<body>
+		<nav class="navbar navbar-expand-md navbar-dark">
+
+			<div class="collapse navbar-collapse" id="navbarsExampleDefault">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a class="nav-link" href="{{url_for('student_dashboard')}}">Home</a>
+					</li>
+				</ul>
+
+				<ul class = "nav navbar-nav navbar-right">
+					<li class = "nav-item">
+						<a class = "nav-link active" href = "{{url_for('logout')}}">Logout</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<br>
+
+	{% if status == 'open' %}
 	<div class = "form-col">
-		<div class="alert alert-primary" role="alert">
-  		Survey for {{course_name}}
+		<div class="alert " role="alert">
+  		Survey for {{course_name}} {{semester}}
 		</div>
 	</div>
 
@@ -36,7 +54,20 @@
 		<button name = "submit" class = "btn btn-primary" value = "submit_answers">Submit</button>
 	</div>
 	</form>
+	{% elif status == 'Not part of the course to answer survey' %}
+	<div class = "form-col">
+		<div class = "alert " role = "alert">
+			{{status}}
+		</div>
+	</div>
+	{% else %}
+	<div class = "form-col">
+		<div class = "alert " role = "alert">
+			{{course_name}} {{semester}} {{status}}
+		</div>
+	</div>
 
+	{% endif %}
 	<!-- Bootstrap core JavaScript
 	================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->

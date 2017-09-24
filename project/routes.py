@@ -23,6 +23,9 @@ class User(UserMixin, db.Model):
 	def get_id(self):
 		return str(self.username)
 
+	def get_type(self):
+		return str(self.type)
+
 # Making the function decorator to check that user is logged in
 # source code: https://stackoverflow.com/questions/15871391/implementing-flask-login-with-multiple-user-classes
 def login_required(role = "ANY"):
@@ -44,6 +47,14 @@ def load_user(username):
 
 @app.route("/", methods = ["POST","GET"])
 def index():
+	# Case for when the user is already logged in
+	if current_user.is_authenticated:
+		if current_user.type == 'student':
+			return redirect(url_for('student_dashboard'))
+		elif current_user.type == 'staff' :
+			return redirect(url_for('dashboard'))
+
+	# If not logged in
 	if request.method == "POST":
 		username = request.form['ID']
 		password_entered = request.form['password']
@@ -74,6 +85,7 @@ def dashboard():
 	return render_template('dashboard.html')
 
 @app.route("/student_dashboard", methods = ["POST", "GET"])
+@login_required(role = "student")
 def student_dashboard():
 	database = StudentDatabase()
 	#database.add_info_enrollments()
@@ -83,7 +95,7 @@ def student_dashboard():
 	if request.method == "POST":
 		course_name = request.form.get('course_name')
 		course_semester = course_name + ' ' + semester
-		return redirect(url_for('answer_survey', course_name = course_semester))
+		return redirect(url_for('answer_survey', course_name = course_name, semester = semester))
 	return render_template('student_page.html', course_list = courses, semester = semester)
 
 @app.route("/question", methods = ["POST", "GET"])
@@ -153,29 +165,38 @@ def survey_creation():
 	return render_template("survey_creation.html", course_list = survey.get_courselist(),
 		question_list = admin.open_questionfile())
 
-@app.route("/answer_survey/<course_name>", methods = ["POST", "GET"])
-def answer_survey(course_name):
-	# First check that surveys for that course exist, if it doesn't return an error message
+@app.route("/answer_survey/<course_name> <semester>", methods = ["POST", "GET"])
+def answer_survey(course_name, semester):
+	# Check that the student is part of the course
+	student_database = StudentDatabase()
 	question_answer = {}
-	survey = Survey('courses.csv')
-	student_answers = StudentAnswers()
-	questions = survey.search_for_course_questions(course_name)
-	if not questions:
-		return 'No surveys for this course'
-	else:
-		# If there are questions, we want to check that the survey is open for answers
-		if survey.get_survey_status(course_name) == 'open':
-			# we want to find the answers then make a dictionary
-			# so that the answer and question are related
-			question_answer = survey.get_answers_to_questions(questions)
-			if request.method == "POST":
-				for k in question_answer:
-					answer = request.form.get(k)
-					student_answers.add_answers(course_name, k, answer)
-				return 'Answer Saved'
+
+	# Check that the student is part of the course before they can answer survey
+	if course_name in student_database.get_student_courses(current_user.username) and semester in student_database.get_student_semester(current_user.username):
+		# Check that surveys for that course exist, if it doesn't return an error message
+		survey = Survey('courses.csv')
+		student_answers = StudentAnswers()
+		questions = survey.search_for_course_questions(course_name)
+		if not questions:
+			status = 'has no surveys'
 		else:
-			return 'Survey is closed'
-		return render_template("survey_form.html", course_name = course_name, question_answer = question_answer)
+			# If there are questions, we want to check that the survey is open for answers
+			if survey.get_survey_status(course_name) == 'open':
+				# we want to find the answers then make a dictionary
+				# so that the answer and question are related
+				status = 'open'
+				question_answer = survey.get_answers_to_questions(questions)
+				if request.method == "POST":
+					for k in question_answer:
+						answer = request.form.get(k)
+						student_answers.add_answers(course_name, k, answer)
+					return 'Answer Saved'
+			else:
+				status = 'survey is closed'
+	else:
+		status = 'Not part of the course to answer survey'
+	return render_template("survey_form.html", course_name = course_name, semester = semester,
+	question_answer = question_answer, status = status)
 
 
 from routes import app

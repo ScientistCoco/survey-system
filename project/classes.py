@@ -41,6 +41,8 @@ class StudentDatabase():
 		con.close()
 		return semester[0]
 
+student = StudentDatabase()
+print(student.get_student_courses('100'))
 class Admin:
 	def __init__(self):
 		pass

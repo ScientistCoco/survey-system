@@ -44,3 +44,8 @@ body{
 .card-body{
   margin-top: 10%;
 }
+
+.alert{
+  background: #494949;
+  color: #fff;
+}
