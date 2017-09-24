@@ -8,7 +8,7 @@ class StudentDatabase():
 	def add_info_enrollments(self):
 		con = sqlite3.connect("survey_database.db")
 		cur = con.cursor()
-		cur.execute("CREATE TABLE IF NOT EXISTS student_enrolments (id int not null, course_name text not null, semester text not null, num int primary key not null);") # use your column names here
+		cur.execute("CREATE TABLE IF NOT EXISTS student_enrolments (id int not null, course_name text not null, semester text not null, survey_completed text not null, num int primary key not null);") # use your column names here
 
 		with open('enrolments.csv','r') as f:
      # csv.DictReader uses first line in file for column headings by default
@@ -16,15 +16,14 @@ class StudentDatabase():
 			increment = 0;
 			for i in dr:
 				increment = increment + 1
-				to_db = [(i['id'], i['course_name'], i['semester'], increment)]
-				cur.executemany("INSERT OR REPLACE INTO student_enrolments (id, course_name, semester, num) VALUES (?, ?, ?, ?);", to_db)
+				to_db = [(i['id'], i['course_name'], i['semester'],'no', increment)]
+				cur.executemany("INSERT OR REPLACE INTO student_enrolments (id, course_name, semester, survey_completed, num) VALUES (?, ?, ?, ?, ?);", to_db)
 				con.commit()
 		con.close()
 
 	def get_student_courses(self, id):
 		con = sqlite3.connect("survey_database.db")
 		cur = con.cursor()
-
 		rows = cur.execute("SELECT course_name FROM student_enrolments WHERE id = ?", (id,))
 		student_courses = []
 		for row in rows:
@@ -35,14 +34,28 @@ class StudentDatabase():
 	def get_student_semester(self, id):
 		con = sqlite3.connect("survey_database.db")
 		cur = con.cursor()
-
 		cur.execute("SELECT semester FROM student_enrolments WHERE id = ?", (id,))
 		semester = cur.fetchone()
 		con.close()
 		return semester[0]
 
-student = StudentDatabase()
-print(student.get_student_courses('100'))
+	def completion_of_survey(self, id, course_name):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+		cur.execute("UPDATE student_enrolments SET survey_completed = 'yes' WHERE id = ? AND course_name = ?", (id, course_name))
+		con.commit()
+		con.close()
+
+	def check_if_survey_completed(self, id, course_name):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+
+		cur.execute("SELECT survey_completed FROM student_enrolments WHERE id = ? AND course_name = ?", (id, course_name))
+		result = cur.fetchone()
+		con.close()
+		return result[0]
+
+
 class Admin:
 	def __init__(self):
 		pass
@@ -110,11 +123,6 @@ class Survey(Admin):
 	def delete_question_from_survey(self, question_to_delete, course_name):
 		question_id = controller.search_questionID(question_to_delete)
 		controller.delete_question_from_survey(question_id, course_name)
-
-survey = Survey('courses.csv')
-print(survey.get_survey_status('SENG2021 17s2'))
-survey.change_survey_status('SENG2021 17s2')
-print(survey.get_survey_status('SENG2021 17s2'))
 
 class StudentAnswers:
 	def init(self):

@@ -146,6 +146,7 @@ def survey_creation():
 			selected_course = request.form.get('course_selected')
 			selected_question = request.form.get('question-selected')
 			survey.add_question_to_survey(selected_course, selected_question)
+			status = survey.get_survey_status(selected_course)
 			# Update the question list
 			question_in_course = survey.get_questions_in_course(selected_course)
 			for question in question_in_course:
@@ -176,23 +177,29 @@ def answer_survey(course_name, semester):
 		# Check that surveys for that course exist, if it doesn't return an error message
 		survey = Survey('courses.csv')
 		student_answers = StudentAnswers()
-		questions = survey.search_for_course_questions(course_name)
+		questions = survey.search_for_course_questions(course_name + ' ' + semester)
 		if not questions:
 			status = 'has no surveys'
 		else:
-			# If there are questions, we want to check that the survey is open for answers
-			if survey.get_survey_status(course_name) == 'open':
-				# we want to find the answers then make a dictionary
-				# so that the answer and question are related
-				status = 'open'
-				question_answer = survey.get_answers_to_questions(questions)
-				if request.method == "POST":
-					for k in question_answer:
-						answer = request.form.get(k)
-						student_answers.add_answers(course_name, k, answer)
-					return 'Answer Saved'
+			# If there are questions we check that the student has not answered the survey before:
+			if student_database.check_if_survey_completed(current_user.username, course_name) == 'yes':
+				status = 'survey already completed'
 			else:
-				status = 'survey is closed'
+			# If there are questions, we want to check that the survey is open for answers
+				if survey.get_survey_status(course_name + ' ' + semester) == 'open':
+					# we want to find the answers then make a dictionary
+					# so that the answer and question are related
+					status = 'open'
+					question_answer = survey.get_answers_to_questions(questions)
+					if request.method == "POST":
+						for k in question_answer:
+							answer = request.form.get(k)
+							student_answers.add_answers(course_name, k, answer)
+						# Then we update the database to indicate the student has completed the survey
+						student_database.completion_of_survey(current_user.username, course_name)
+						return 'Answer Saved'
+				else:
+					status = 'survey is closed'
 	else:
 		status = 'Not part of the course to answer survey'
 	return render_template("survey_form.html", course_name = course_name, semester = semester,
