@@ -64,10 +64,10 @@ class Admin:
 		questions = controller.view_all_questions()
 		return questions
 
-	def add_question(self, question_to_add, answer_to_add):
+	def add_question(self, question_to_add, answer_to_add, questionType):
 		questionID = random.randint(1,50)
 		answerID = questionID
-		controller.add_questionText(questionID, question_to_add)
+		controller.add_questionText(questionID, question_to_add, questionType)
 		for answer in answer_to_add:
 			controller.add_answerText(answerID, questionID, answer)
 

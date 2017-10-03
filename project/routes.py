@@ -103,11 +103,16 @@ def student_dashboard():
 def question_page():
 	question_from_server = []
 	answer_list = []
+	error = 'negative'
 	if request.method == "POST":
 		if request.form['submit'] == 'add_question':
 			question_from_server = request.form.get('question_entered')
 			answer_list = request.form.getlist('answer_entered[]')
-			admin.add_question(question_from_server, answer_list)
+			question_type = request.form.get('QType')
+			if len(answer_list) == 1 and question_type == 'MC':
+				error = 'positive'
+			else:
+				admin.add_question(question_from_server, answer_list, question_type)
 		elif request.form['submit'] == 'delete_question':
 			question_to_delete = request.form.getlist('checkbox_value')
 			for question in question_to_delete:
@@ -117,7 +122,7 @@ def question_page():
 	question_list = admin.open_questionfile()
 	for question in question_list:
 		question_answer[question] = admin.view_answers(question)
-	return render_template('question_page.html', question_answer = question_answer)
+	return render_template('question_page.html', question_answer = question_answer, error = error)
 
 selected_course = ''
 @app.route("/survey_creation", methods = ["POST", "GET"])

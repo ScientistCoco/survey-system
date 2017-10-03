@@ -38,11 +38,25 @@
       </div>
     </nav>
 
+    {% if error == 'positive' %}
+    <div class = "form-col">
+    <div class="alert alert-danger">
+      <strong>Error!</strong> Please enter multiple choice options.
+    </div>
+    </div>
+    {% endif %}
     <form method = "POST">
 			<div class = "form-group">
         <div class = "form-col">
 				      <label for = "formGroupExampleInput"> Enter the Question </label>
 				      <input type = "text" name = "question_entered" class = "form-control">
+        </div>
+
+        <div class = "form-col">
+        Select question type:
+
+        <label class="radio-inline"><input type="radio" name="QType" value = "MC">Multiple choice</label>
+        <label class="radio-inline"><input type="radio" name="QType" value = "SA">Short answer</label>
         </div>
 
         <div class = "multiple-form-group" data-max=5>

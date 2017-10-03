@@ -34,9 +34,9 @@ class Controller(object):
         answer = model.search_answerText(answerID)
         return view.view_answerID(answer)
 
-    def add_questionText(self, questionID, questionText):
+    def add_questionText(self, questionID, questionText, questionType):
         model = SurveyModel()
-        model.add_questionText(questionID, questionText)
+        model.add_questionText(questionID, questionText, questionType)
 
     def add_answerText(self, answerID, questionID, answerText):
         model = SurveyModel()
@@ -103,8 +103,8 @@ class SurveyModel(object):
         answer = self._dbselect(query)
         return answer
 
-    def add_questionText(self, questionID, questionText):
-        query = "INSERT INTO question VALUES ('%s', '%s')" %(questionID, questionText)
+    def add_questionText(self, questionID, questionText, questionType):
+        query = "INSERT INTO question VALUES ('%s', '%s', '%s')" %(questionID, questionText, questionType)
         self._dbinsert(query)
 
     def add_answerText(self, answerID, questionID, answerText):
