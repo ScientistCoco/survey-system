@@ -1,0 +1,45 @@
+body{
+  background:#fff;
+}
+
+.navbar{
+  min-height: 33px;
+  height: 100%;
+  background:#E53D3D;
+  background: linear-gradient(to left, #2E85AC, #3DB2E5);
+}
+
+.navbar li a{
+  color: #fff;
+  margin-right: 40px;
+}
+
+.form-col{
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 2%;
+  padding: 0px;
+}
+
+.glyphicon{
+  font-size: 12px;
+}
+
+.card-title{
+  margin: 0%;
+
+}
+
+.card-body{
+  background: #fff;
+}
+
+.alert p{
+  line-height: 25px;
+  padding-top: 5px;
+  padding-bottom: -25px;
+}
+
+.radio-inline{
+  margin-left: 10%;
+}

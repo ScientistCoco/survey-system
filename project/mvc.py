@@ -63,9 +63,15 @@ class Controller(object):
         return view.view_survey_status(status)
 
     # Change the status of the survey
-    def change_survey_status(self, course_name):
+    def change_survey_status(self, course_name, status):
         model = SurveyModel()
-        model.change_survey_status(course_name)
+        model.change_survey_status(course_name, status)
+
+    # Returns the number of courses with the status in question
+    def count_survey_status(self, status):
+        model = SurveyModel()
+        result = model.count_survey_status(status)
+        return result
 # Model
 class SurveyModel(object):
     def search_surveyID(self, course_name):
@@ -128,22 +134,33 @@ class SurveyModel(object):
     def get_survey_status(self, course_name):
         query = "SELECT availability from survey_availability WHERE course_name = '%s'" %course_name
         result = self._dbselect(query)
+        print(result)
         # Check if the course exists if it doesn't then we return a closed value
-        if not result:
-            query = "INSERT INTO survey_availability VALUES ('%s', '%s')" %(course_name, 'close')
-            self._dbinsert(query)
-            result = ['close']
+        #if not result:
+        #    query = "INSERT INTO survey_availability VALUES ('%s', '%s')" %(course_name, 'close')
+        #    self._dbinsert(query)
+        #    result = ['close']
         return result
 
-    def change_survey_status(self, course_name):
-        # First get the status:
-        result = self.get_survey_status(course_name)
-        if result[0] == 'close':
-            query = "UPDATE survey_availability SET availability = 'open' WHERE course_name = '%s'" %(course_name)
+    def change_survey_status(self, course_name, status):
+        if status == 'review':
+            query = "UPDATE survey_availability SET availability = 'review' WHERE course_name = '%s'" %(course_name)
         else:
-            query = "UPDATE survey_availability SET availability = 'close' WHERE course_name = '%s'" %(course_name)
+            # First get the status:
+            result = self.get_survey_status(course_name)
+            if result[0] == 'close' or result[0] == 'review':
+                query = "UPDATE survey_availability SET availability = 'open' WHERE course_name = '%s'" %(course_name)
+            else:
+                query = "UPDATE survey_availability SET availability = 'close' WHERE course_name = '%s'" %(course_name)
         self._dbinsert(query)
 
+    def count_survey_status(self, status):
+        if status == 'null':
+            query = "SELECT count(*) FROM survey_availability WHERE availability IS NULL"
+        else:
+            query = "SELECT count(*) FROM survey_availability WHERE availability = '%s'" %(status)
+        result = self._dbselect(query)
+        return result[0]
     # For searching items in the database and returning the results
     def _dbselect(self, query):
         connection = sqlite3.connect('survey_database.db')

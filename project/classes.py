@@ -55,6 +55,21 @@ class StudentDatabase():
 		con.close()
 		return result[0]
 
+class SurveyAvailability():
+	# Create the survey_availability table if it doesn't exist
+	def add_info(self):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+		cur.execute("CREATE TABLE IF NOT EXISTS survey_availability (course_name text primary key not null, availability text);")
+
+		with open('courses.csv','r') as f:
+     # csv.DictReader uses first line in file for column headings by default
+			reader = csv.reader(f)
+			for field in reader:
+				text = field[0] + ' ' + field[1]
+				cur.execute("INSERT OR REPLACE INTO survey_availability (course_name) VALUES ('%s');" %(text))
+				con.commit()
+		con.close()
 
 class Admin:
 	def __init__(self):
@@ -80,6 +95,25 @@ class Admin:
 		question_id = controller.search_questionID(question_to_delete)
 		controller.delete_question(question_id)
 
+	def get_survey_availabilities(self):
+		survey_open = controller.count_survey_status('open')
+		survey_close = controller.count_survey_status('close')
+		survey_null = controller.count_survey_status('null')
+		availability = [survey_open, survey_close, survey_null]
+		return availability
+
+	def surveys_to_review(self):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+		rows = cur.execute("SELECT course_name FROM survey_availability WHERE availability = 'review'")
+		courses = []
+		for row in rows:
+			courses = courses + list(row)
+		con.close()
+		return courses
+
+admin = Admin()
+print(admin.surveys_to_review())
 class Survey(Admin):
 	def __init__(self, course_filename):
 		Admin.__init__(self)
@@ -99,11 +133,11 @@ class Survey(Admin):
 		return course_list
 
 	def get_survey_status(self, course_name):
-		status = controller.get_survey_status(course_name)
-		return status
+		result = controller.get_survey_status(course_name)
+		return result
 
-	def change_survey_status(self, course_name):
-		controller.change_survey_status(course_name)
+	def change_survey_status(self, course_name, status):
+		controller.change_survey_status(course_name, status)
 
 	def add_question_to_survey(self, course_name, question_to_add):
 		#First find id of the question_to_add
@@ -131,3 +165,6 @@ class StudentAnswers:
 	def add_answers(self, course_name, question, answer_picked):
 		questionID = controller.search_questionID(question)
 		controller.add_to_answer_database(course_name, questionID, answer_picked)
+
+admin = Admin()
+print(admin.get_survey_availabilities())

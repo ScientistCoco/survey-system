@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <link href = "static/css/staff_style.css" rel = "stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark">
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{{url_for('staff_dashboard')}}">Home</a>
+          </li>
+
+        </ul>
+
+        <ul class = "nav navbar-nav navbar-right">
+          <li class = "nav-item">
+            <a class = "nav-link active" href = "{{url_for('logout')}}">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <br>
+
+    <div class = "form-col">
+  	<form class = "question-select" method = "POST">
+  	<input type = "hidden" name = "question_selected" value = "{{course_selected}}">
+  	<label class " question-select-label" for "inlineFormCustomSelect"> Add Questions </label>
+  	<div class = "input-group">
+        <input value = '{{course_name}}' name = "course_selected" type = "hidden">
+  			<select class = "custom-select form-control" name = "question-selected">
+  				{% for x in question_list %}
+  					<option value = "{{x}}"{% if loop.first %} SELECTED {% endif %}>{{x}}</option>
+  				{% endfor %}
+  			</select>
+  			<span class = "input-group-btn">
+  				<button class = "btn btn-primary" name = 'submit'><i class = "fa fa-plus"></i></button>
+  			</span>
+
+  	</div>
+  	</form>
+  	</div>
+
+    <form method = "POST">
+  	<div class = "form-col">
+      <input value = '{{course_name}}' name = "course_selected" type = "hidden">
+  	<table class = "table table-bordered">
+  		<thead>
+  			<tr>
+          <th style = "width:5%"> <input disabled selected type = "checkbox"></th>
+  				<th style = "width:20%"> Questions in {{course_name}} </th>
+  				<th style = "width:15%"> 1 </th>
+  				<th style = "width:15%"> 2 </th>
+  				<th style = "width:15%"> 3 </th>
+  				<th style = "width:15%"> 4 </th>
+  				<th style = "width:15%"> 5 </th>
+  			</tr>
+  		</thead>
+    </thead>
+    <tbody>
+      {% if question_answer %}
+      {% for key, values in question_answer.items() %}
+      <tr>
+        <td> <input type = "checkbox" value = "{{key}}" name = 'checkbox_value'></label>
+        <th scope = "row">{{key}}</th>
+        {% for value in values %}
+        <td>{{value}}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+      {% endif %}
+    </tbody>
+  	</table>
+    <button name = "submit" value = "delete_question" class = "btn btn-primary">Delete selected questions</button>
+
+        <form method = "POST">
+        <input value = '{{course_selected}}' name = "course_selected" type = "hidden">
+        <button class = "btn btn-primary" name = "submit" style="float: right" value = 'open'>
+          {% if status == "open" %} Close Survey {% else %} Open Survey {% endif %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+
+  </body>
+</html>

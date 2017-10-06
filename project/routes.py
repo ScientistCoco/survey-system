@@ -68,6 +68,8 @@ def index():
 			if registered_user.type == 'student':
 				return redirect(url_for('student_dashboard'))
 			elif registered_user.type == 'staff' :
+				return redirect(url_for('staff_dashboard'))
+			elif registered_user.type == 'admin' :
 				return redirect(url_for('dashboard'))
 	return render_template('login_page.html')
 
@@ -78,11 +80,22 @@ def logout():
 	return redirect(url_for('index'))
 
 @app.route("/dashboard")
-@login_required(role = "staff")
+@login_required(role = "admin")
 def dashboard():
 	# We then need to check the type of the user, if its a staff we direct to the
 	# staff dashboard, else if its student they go to student dashboard
-	return render_template('dashboard.html')
+	results = admin.get_survey_availabilities()
+	return render_template('dashboard.html', open = results[0], close = results[1], null = results[2])
+
+@app.route("/staff_dashboard", methods = ["POST", "GET"])
+@login_required(role = "staff")
+def staff_dashboard():
+	courses = admin.surveys_to_review()
+
+	if request.method == "POST":
+		course_name = request.form.get('course_name')
+		return redirect(url_for('review_course', course_name = course_name))
+	return render_template('staff_dashboard.html', course_list = courses)
 
 @app.route("/student_dashboard", methods = ["POST", "GET"])
 @login_required(role = "student")
@@ -97,6 +110,48 @@ def student_dashboard():
 		course_semester = course_name + ' ' + semester
 		return redirect(url_for('answer_survey', course_name = course_name, semester = semester))
 	return render_template('student_page.html', course_list = courses, semester = semester)
+
+@app.route("/review_<course_name>", methods = ["POST", "GET"])
+@login_required(role = 'staff')
+def review_course(course_name):
+	survey = Survey('courses.csv')
+	question_answer = {}
+	question_in_course = survey.get_questions_in_course(course_name)
+
+	for question in question_in_course:
+		question_answer[question] = admin.view_answers(question)
+
+	if request.method == "POST":
+		if (request.form.getlist('question-selected')):
+			selected_question = request.form.get('question-selected')
+			survey.add_question_to_survey(course_name, selected_question)
+			status = survey.get_survey_status(course_name)
+			# Update the question list
+			question_in_course = survey.get_questions_in_course(course_name)
+			for question in question_in_course:
+				question_answer[question] = admin.view_answers(question)
+
+		elif request.form['submit'] == 'open':
+			selected_course = request.form.get('course_selected')
+			survey.change_survey_status(course_name, '')
+			status = survey.get_survey_status(course_name)
+			return redirect(url_for('staff_dashboard'))
+
+		elif request.form['submit'] == 'delete_question':
+			selected_course = request.form.get('course_selected')
+			question_to_delete = request.form.getlist('checkbox_value')
+			for question in question_to_delete:
+				survey.delete_question_from_survey(question, course_name)
+			# Refresh the question_answer list
+			question_answer = {}
+			question_in_course = survey.get_questions_in_course(course_name)
+			for question in question_in_course:
+				question_answer[question] = admin.view_answers(question)
+		return render_template('review_survey.html', course_name = course_name, question_answer = question_answer,
+	question_list = admin.open_questionfile(), status = survey.get_survey_status(course_name))
+
+	return render_template('review_survey.html', course_name = course_name, question_answer = question_answer,
+question_list = admin.open_questionfile(), status = survey.get_survey_status(course_name))
 
 @app.route("/question", methods = ["POST", "GET"])
 @login_required(role = "ANY")
@@ -163,6 +218,11 @@ def survey_creation():
 			for question in question_to_delete:
 				survey.delete_question_from_survey(question, selected_course)
 
+		elif request.form['submit'] == 'put_into_review':
+			selected_course = request.form.get('course_selected')
+			survey.change_survey_status(selected_course, 'review')
+			status = survey.get_survey_status(selected_course)
+
 		return render_template("survey_creation.html", course_list = survey.get_courselist(),
 			question_list = admin.open_questionfile(), question_answer = question_answer,
 			course_selected = selected_course, status = status)
@@ -202,7 +262,7 @@ def answer_survey(course_name, semester):
 							student_answers.add_answers(course_name, k, answer)
 						# Then we update the database to indicate the student has completed the survey
 						student_database.completion_of_survey(current_user.username, course_name)
-						return 'Answer Saved'
+						return redirect(url_for('student_dashboard'))
 				else:
 					status = 'survey is closed'
 	else:

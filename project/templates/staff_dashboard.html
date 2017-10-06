@@ -6,8 +6,9 @@
     <title>Starter Template for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
-    <link href = "static/css/style.css" rel = "stylesheet">
+    <link href = "static/css/staff_style.css" rel = "stylesheet">
   </head>
 
   <body>
@@ -19,15 +20,7 @@
           <li class="nav-item active">
             <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('question_page')}}">Questions</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('survey_creation')}}">Survey</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Responses</a>
-          </li>
+
         </ul>
 
         <ul class = "nav navbar-nav navbar-right">
@@ -37,11 +30,32 @@
         </ul>
       </div>
     </nav>
+    <br>
+    <div class="form-col">
+      <h5>Courses to review:</h5>
+      <br>
+			<div class="card-group" >
+				{% for course in course_list %}
+				 <div class="col-sm-3">
+				<div class = "card text-black" >
+					<div class = "card-body">
+						<h4 class = "card-title"> {{course}} </h4>
+					</div>
 
-    <div class = "form-col">
-      Courses currently open
+					<div class = "card-footer">
+						<form method = "POST">
+						<button class = "btn btn-dark pull-right" name = 'do_survey'><i class = "fa fa-chevron-right" aria-hidden="true"></i></button>
+						<!-- Have the course name entered into a text box, so when button is pressed the course-name is submitted"-->
+            <!-- Have to put quotes between the {{course}} or else it will only print the first word before the space-->
+            <input type = "hidden" name = "course_name" value = "{{course}}"/>
+						</form>
+					</div>
+				</div>
+			</div>
+				{% endfor %}
+			</div>
+		</div>
 
-    </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -54,33 +68,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
 
-    <!-- Chart.js source -->
-    <div class = "form-col">
-    <div class = "col-sm-3">
-    <canvas id="myChart" width="500" height="500"></canvas>
-    <script>
-    var ctx = document.getElementById("myChart").getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ["Open", "Closed", "Not yet created"],
-        datasets: [
-          {
-            label: "Population (millions)",
-            backgroundColor: ["#2ecc71", "#3498db", "#95a5a6"],
-            data: [{{ open }}, {{ close }}, {{null}}]
-          }
-        ]
-      },
-      options: {
-     title: {
-       display: false,
-       text: ''
-     }
-   }
-    });
-    </script>
-  </div>
-  </div>
   </body>
 </html>

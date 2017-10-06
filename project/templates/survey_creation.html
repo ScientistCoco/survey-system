@@ -87,6 +87,8 @@
       <p>{{course_selected}} is
         {% if status == "open" %}
         open
+        {% elif status == 'review' %}
+        closed (reviewing)
         {% else %}
         closed
         {% endif %}
@@ -126,7 +128,8 @@
   </tbody>
 	</table>
   <button name = "submit" value = "delete_question" class = "btn btn-primary">Delete selected questions</button>
-	</div>
+  <button name = "submit" value = "put_into_review" class = "btn btn-primary pull-right">Submit for review</button>
+  </div>
   </form>
 
 	<!--
