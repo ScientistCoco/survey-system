@@ -199,7 +199,8 @@ def survey_creation():
 
 		elif request.form['submit'] == 'open':
 			selected_course = request.form.get('course_selected')
-			survey.change_survey_status(selected_course)
+			status = survey.get_survey_status(selected_course)
+			survey.change_survey_status(selected_course, status)
 			status = survey.get_survey_status(selected_course)
 
 		elif (request.form.getlist('question-selected')):
