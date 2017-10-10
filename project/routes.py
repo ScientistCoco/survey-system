@@ -33,7 +33,8 @@ def login_required(role = "ANY"):
 		@wraps(fn)
 		def decorated_view(*args, **kwargs):
 			if not current_user.is_authenticated:
-				return current_app.login_manager.unauthorized()
+				return render_template('invalid_access.html')
+				#return current_app.login_manager.unauthorized()
 			# Then we check the type of the user
 			if ((current_user.type != role) and (role != "ANY")):
 				return current_app.login_manager.unauthorized()
@@ -155,7 +156,7 @@ def review_course(course_name):
 question_list = admin.open_questionfile(), status = survey.get_survey_status(course_name))
 
 @app.route("/question", methods = ["POST", "GET"])
-@login_required(role = "ANY")
+@login_required(role = "admin")
 def question_page():
 	question_from_server = []
 	answer_list = []
@@ -182,7 +183,7 @@ def question_page():
 
 selected_course = ''
 @app.route("/survey_creation", methods = ["POST", "GET"])
-@login_required(role = "ANY")
+@login_required(role = "admin")
 def survey_creation():
 	survey = Survey('courses.csv')
 
@@ -234,6 +235,7 @@ def survey_creation():
 		question_list = admin.open_questionfile())
 
 @app.route("/answer_survey/<course_name> <semester>", methods = ["POST", "GET"])
+@login_required(role = "student")
 def answer_survey(course_name, semester):
 	# Check that the student is part of the course
 	student_database = StudentDatabase()
