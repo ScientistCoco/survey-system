@@ -72,6 +72,12 @@ class Controller(object):
         model = SurveyModel()
         result = model.count_survey_status(status)
         return result
+
+    # Returns the list of courses with the status in question
+    def list_of_courses_status(self, status):
+        model = SurveyModel()
+        result = model.list_of_courses_status(status)
+        return result
 # Model
 class SurveyModel(object):
     def search_surveyID(self, course_name):
@@ -161,6 +167,12 @@ class SurveyModel(object):
             query = "SELECT count(*) FROM survey_availability WHERE availability = '%s'" %(status)
         result = self._dbselect(query)
         return result[0]
+
+    def list_of_courses_status(self, status):
+        query = "SELECT course_name FROM survey_availability WHERE availability = '%s'" %(status)
+        result = self._dbselect(query)
+        return result
+
     # For searching items in the database and returning the results
     def _dbselect(self, query):
         connection = sqlite3.connect('survey_database.db')

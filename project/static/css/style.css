@@ -42,3 +42,12 @@ body{
 .radio-inline{
   margin-left: 10%;
 }
+
+.card-group{
+  margin-left: 10%;
+  margin-top: 5%;
+}
+
+.card-body{
+  padding-left: 10%;
+}

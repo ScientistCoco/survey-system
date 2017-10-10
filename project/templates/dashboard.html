@@ -38,11 +38,6 @@
       </div>
     </nav>
 
-    <div class = "form-col">
-      Courses currently open
-
-    </div>
-
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -55,8 +50,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
 
     <!-- Chart.js source -->
-    <div class = "form-col">
-    <div class = "col-sm-3">
+    <div class = "container-fluid vertical-center">
+      <div class = "card-group">
+        <div class = "col-sm-3">
+          <div class = "card-body">
     <canvas id="myChart" width="500" height="500"></canvas>
     <script>
     var ctx = document.getElementById("myChart").getContext('2d');
@@ -82,5 +79,18 @@
     </script>
   </div>
   </div>
+
+  <div class = "card-body">
+    <div class = "col-sm-4">
+      Surveys currently open
+    <div class = "list-group">
+      {% for course in courses_open %}
+        <a href = "#" class = "list-group-item"> {{course}} </a>
+      {% endfor %}
+    </div>
+  </div>
+  </div>
+</div>
+</div>
   </body>
 </html>

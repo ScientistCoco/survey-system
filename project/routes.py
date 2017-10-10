@@ -85,7 +85,8 @@ def dashboard():
 	# We then need to check the type of the user, if its a staff we direct to the
 	# staff dashboard, else if its student they go to student dashboard
 	results = admin.get_survey_availabilities()
-	return render_template('dashboard.html', open = results[0], close = results[1], null = results[2])
+	return render_template('dashboard.html', open = results[0], close = results[1], null = results[2],
+courses_open = admin.list_of_courses_status('open'))
 
 @app.route("/staff_dashboard", methods = ["POST", "GET"])
 @login_required(role = "staff")

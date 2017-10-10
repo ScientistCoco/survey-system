@@ -112,8 +112,12 @@ class Admin:
 		con.close()
 		return courses
 
+	def list_of_courses_status(self, status):
+		courses = controller.list_of_courses_status(status)
+		return courses
+
 admin = Admin()
-print(admin.surveys_to_review())
+print(admin.list_of_courses_status('null'))
 class Survey(Admin):
 	def __init__(self, course_filename):
 		Admin.__init__(self)
