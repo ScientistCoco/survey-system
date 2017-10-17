@@ -122,7 +122,7 @@ class Admin:
 		bank = {}
 		for question in questions:
 			ID.append(controller.search_questionID(question))
-		MCQuestions = controller.get_MC_responses(ID)
+		MCQuestions = controller.get_ID_MC_SA(ID, 'MC')
 
 		# Now we find the answers associated with the MCQuestions
 		for x in MCQuestions:
@@ -135,6 +135,24 @@ class Admin:
 			bank[question_text] = outer_key, ansNum
 		return bank
 
+	def get_SA_responses(self, course):
+		questions = controller.search_surveyID(course) #Returns a tuple of text questions
+		ID = []
+		for question in questions: # Returns a list of question ID number
+			ID.append(controller.search_questionID(question))
+		SAQuestions = controller.get_ID_MC_SA(ID, 'SA')
+		print(SAQuestions)
+
+		# Now we get the answers associated with the question:
+		results = {}
+		for x in SAQuestions:
+			sa_answer = controller.get_SA_responses(course, x)
+			question_text = controller.find_question(x)
+			results[question_text] = sa_answer
+		return results
+
+admin = Admin()
+print(admin.get_SA_responses('SENG2011 17s2'))
 class Survey(Admin):
 	def __init__(self, course_filename):
 		Admin.__init__(self)

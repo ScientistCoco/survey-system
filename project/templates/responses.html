@@ -48,11 +48,18 @@
             {% endfor %}
           </select>
         </div>
-      </form>
-    </br>
-      {% if course_name%}
-        {{course_name}}
-      {% endif %}
+
+        </br>
+          {% if course_name %}
+            {{course_name}}
+          </br>
+          </br>
+          <div class = "input-group">
+            <button type = 'button' class="btn btn-primary" value = {{course_name}} onclick = "window.location.href = '{{url_for('sa_responses', course_name = course_name )}}' " >Click here to see short answer responses
+            </button>
+          {% endif %}
+        </div>
+        </form>
     </div>
 
 

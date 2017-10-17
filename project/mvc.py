@@ -85,9 +85,9 @@ class Controller(object):
         result = model.list_of_courses_status(status)
         return result
 
-    def get_MC_responses(self, questionIDs):
+    def get_ID_MC_SA(self, questionIDs, q_type):
         model = SurveyModel()
-        result = model.get_MC_responses(questionIDs)
+        result = model.get_ID_MC_SA(questionIDs, q_type)
         return result
 
     def check_for_duplicate(self, selected_course, selected_question):
@@ -99,6 +99,12 @@ class Controller(object):
     def get_answer_results(self, course_name, questionID, answerText):
         model = SurveyModel()
         result = model.get_answer_results(course_name, questionID, answerText)
+        return result
+
+    # Get a list of the SA responses
+    def get_SA_responses(self, course_name, questionID):
+        model = SurveyModel()
+        result = model.get_SA_responses(course_name, questionID)
         return result
 # Model
 class SurveyModel(object):
@@ -195,11 +201,11 @@ class SurveyModel(object):
         result = self._dbselect(query)
         return result
 
-    def get_MC_responses(self, questionIDs):
+    def get_ID_MC_SA(self, questionIDs, q_type):
         # Find the questiosn that are MC
         IDs = []
         for questionID in questionIDs:
-            query = "SELECT questionID FROM question WHERE (question_type = 'MC' AND questionID = '%s')" %(questionID)
+            query = "SELECT questionID FROM question WHERE (question_type = '%s' AND questionID = '%s')" %(q_type, questionID)
             result = self._dbselect(query)
             if result:
                 IDs.append(result[0])
@@ -217,6 +223,11 @@ class SurveyModel(object):
         query = "SELECT COUNT(*) FROM survey_answers WHERE (course_name = '%s' AND questionID = '%s' AND answer_text = '%s')" %(course_name, questionID, answerText)
         result = self._dbselect(query)
         return result[0]
+
+    def get_SA_responses(self, course_name, questionID):
+        query = "SELECT answer_text FROM survey_answers WHERE (course_name = '%s' AND questionID = '%s')" %(course_name, questionID)
+        result = self._dbselect(query)
+        return result
 
     # For searching items in the database and returning the results
     def _dbselect(self, query):

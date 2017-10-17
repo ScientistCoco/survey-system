@@ -99,10 +99,20 @@ def responses():
 		# If MC then we get the answers and make a chart
 		course_name = request.form.get('course_selected')
 		MC_responses = admin.get_MC_responses(course_name)
+
 		return render_template('responses.html', course_list = course_list, MC_responses = MC_responses,
 	course_name = course_name)
 
 	return render_template('responses.html', course_list = course_list)
+
+@app.route("/sa_responses_<course_name>", methods = ["POST", "GET"])
+def sa_responses(course_name):
+	sa_results = admin.get_SA_responses(course_name)
+
+	if request.method == "POST":
+		question_text = request.form.get('q_selected')
+		return render_template('sa_responses.html', course_name = course_name, q_list = sa_results, a_list = sa_results[question_text], question = question_text)
+	return render_template('sa_responses.html', course_name = course_name, q_list = sa_results)
 
 @app.route("/staff_dashboard", methods = ["POST", "GET"])
 @login_required(role = "staff")

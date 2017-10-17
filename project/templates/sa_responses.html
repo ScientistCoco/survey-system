@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Starter Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <link href = "static/css/style.css" rel = "stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark">
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('dashboard')}}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('question_page')}}">Questions</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('survey_creation')}}">Survey</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('responses')}}">Responses<span class="sr-only"></span></a>
+          </li>
+        </ul>
+
+        <ul class = "nav navbar-nav navbar-right">
+          <li class = "nav-item">
+            <a class = "nav-link active" href = "{{url_for('logout')}}">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class = "form-col">
+    <div class = "alert alert-success" role = "alert">
+      Short answer responses for {{course_name}}
+    </div>
+    </div>
+
+    <div class = "form-col">
+      <form class = "course_select", method = "POST">
+        <div class = "input-group">
+          <select class = "custom-select form-control" name = "q_selected" onchange = "this.form.submit()">
+            <option value = "" disabled selected> Pick the question to see results </option>
+            {% for x in q_list %}
+              <option value = "{{x}}">{{x}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
+    </div>
+
+    <div class = "form-col">
+      {% if a_list %}
+      <table class = "table table-responsive">
+        <thead>
+          <tr>
+            <th style = "width:5%">#</th>
+            <th>{{question}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key in a_list %}
+          <tr>
+            <th scope = "row">{{loop.index}}</th>
+            <td>{{key}}</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+      {% endif %}
+    </table>
+  </div>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+
+  </body>
+</html>
