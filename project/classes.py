@@ -116,8 +116,25 @@ class Admin:
 		courses = controller.list_of_courses_status(status)
 		return courses
 
-admin = Admin()
-print(admin.list_of_courses_status('null'))
+	def get_MC_responses(self, course):
+		questions = controller.search_surveyID(course)
+		ID = []
+		bank = {}
+		for question in questions:
+			ID.append(controller.search_questionID(question))
+		MCQuestions = controller.get_MC_responses(ID)
+
+		# Now we find the answers associated with the MCQuestions
+		for x in MCQuestions:
+			outer_key = list(controller.search_answerText(x))
+			question_text = controller.find_question(x)
+			ansNum = []		# List containing the numbers corresponding to the answers
+			for y in outer_key:
+				number = controller.get_answer_results(course, x, y)
+				ansNum.append(number)
+			bank[question_text] = outer_key, ansNum
+		return bank
+
 class Survey(Admin):
 	def __init__(self, course_filename):
 		Admin.__init__(self)
@@ -162,6 +179,14 @@ class Survey(Admin):
 		question_id = controller.search_questionID(question_to_delete)
 		controller.delete_question_from_survey(question_id, course_name)
 
+	# Checks if the question we are trying to add to the survey is already added in
+	def check_for_duplicate(self, selected_course, selected_question):
+		result = controller.check_for_duplicate(selected_course, selected_question)
+		if result: # If question already exists
+			return 1
+		else:
+			return 0
+
 class StudentAnswers:
 	def init(self):
 		pass
@@ -170,5 +195,5 @@ class StudentAnswers:
 		questionID = controller.search_questionID(question)
 		controller.add_to_answer_database(course_name, questionID, answer_picked)
 
-admin = Admin()
-print(admin.get_survey_availabilities())
+survey = Survey('courses.csv')
+print(survey.check_for_duplicate('SENG2011 17s2', 'What is your favourite drink?'))

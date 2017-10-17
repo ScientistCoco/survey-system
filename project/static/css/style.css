@@ -51,3 +51,8 @@ body{
 .card-body{
   padding-left: 10%;
 }
+
+.result-container{
+   margin-left: -5%;
+   margin-top: -4%;
+}

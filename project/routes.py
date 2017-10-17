@@ -89,6 +89,21 @@ def dashboard():
 	return render_template('dashboard.html', open = results[0], close = results[1], null = results[2],
 courses_open = admin.list_of_courses_status('open'))
 
+@app.route("/responses", methods = ["POST", "GET"])
+def responses():
+	course_list = admin.list_of_courses_status('close')
+
+	if request.method == "POST":
+		# Get the questions associated with the survey
+		# Then determine if the question is MC or short answer
+		# If MC then we get the answers and make a chart
+		course_name = request.form.get('course_selected')
+		MC_responses = admin.get_MC_responses(course_name)
+		return render_template('responses.html', course_list = course_list, MC_responses = MC_responses,
+	course_name = course_name)
+
+	return render_template('responses.html', course_list = course_list)
+
 @app.route("/staff_dashboard", methods = ["POST", "GET"])
 @login_required(role = "staff")
 def staff_dashboard():
@@ -208,7 +223,10 @@ def survey_creation():
 		elif (request.form.getlist('question-selected')):
 			selected_course = request.form.get('course_selected')
 			selected_question = request.form.get('question-selected')
-			survey.add_question_to_survey(selected_course, selected_question)
+			# Check the question has not already been added:
+			check = survey.check_for_duplicate(selected_course, selected_question)
+			if (check == 0):	# Question not yet added
+				survey.add_question_to_survey(selected_course, selected_question)
 			status = survey.get_survey_status(selected_course)
 			# Update the question list
 			question_in_course = survey.get_questions_in_course(selected_course)
@@ -263,7 +281,7 @@ def answer_survey(course_name, semester):
 					if request.method == "POST":
 						for k in question_answer:
 							answer = request.form.get(k)
-							student_answers.add_answers(course_name, k, answer)
+							student_answers.add_answers(course_name + ' ' + semester, k, answer)
 						# Then we update the database to indicate the student has completed the survey
 						student_database.completion_of_survey(current_user.username, course_name)
 						return redirect(url_for('student_dashboard'))
