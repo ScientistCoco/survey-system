@@ -33,7 +33,9 @@
       </div>
     </nav>
     <br>
+
     <div class="form-col">
+      {% if course_list %}
       <h5>Courses to review:</h5>
       <br>
 			<div class="card-group" >
@@ -56,6 +58,9 @@
 			</div>
 				{% endfor %}
 			</div>
+      {% else %}
+      <h5> No courses to review at the moment </h5>
+      {% endif %}
 		</div>
 
     <!-- Bootstrap core JavaScript

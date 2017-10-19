@@ -36,7 +36,7 @@ def login_required(role = "ANY"):
 				#return current_app.login_manager.unauthorized()
 			# Then we check the type of the user
 			if ((current_user.type != role) and (role != "ANY")):
-				return current_app.login_manager.unauthorized()
+				return render_template('invalid_access.html')
 			return fn(*args, **kwargs)
 		return decorated_view
 	return wrapper
@@ -216,10 +216,16 @@ def question_page():
 			question_from_server = request.form.get('question_entered')
 			answer_list = request.form.getlist('answer_entered[]')
 			question_type = request.form.get('QType')
-			if len(answer_list) == 1 and question_type == 'MC':
+			if len(answer_list) == 1 and question_type == 'MC':	# If user does add MC options
 				error = 'positive'
-			else:
+			else:	# If the user did not pick an option for question_type then default is SA
+				if not question_type:
+					if len(answer_list) > 1:
+						question_type = 'MC'
+					else:
+						question_type = 'SA'
 				admin.add_question(question_from_server, question_type, answer_list)
+
 		elif request.form['submit'] == 'delete_question':
 			question_to_delete = request.form.getlist('checkbox_value')
 			for question in question_to_delete:

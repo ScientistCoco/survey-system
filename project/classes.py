@@ -151,7 +151,7 @@ class Admin(Staff):
 		Staff.__init__(self, ID)
 
 	def add_question(self, question, questionType, answers):
-		questionID = random.randint(1,100)
+		questionID = random.randint(1,1000)
 		answerID = questionID
 		controller.add_questionText(questionID, question, questionType)
 		for answer in answers:
