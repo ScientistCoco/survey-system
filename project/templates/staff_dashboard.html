@@ -20,7 +20,9 @@
           <li class="nav-item active">
             <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
           </li>
-
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('responses')}}">Responses</a>
+          </li>
         </ul>
 
         <ul class = "nav navbar-nav navbar-right">
@@ -36,7 +38,7 @@
       <br>
 			<div class="card-group" >
 				{% for course in course_list %}
-				 <div class="col-sm-3">
+				 <div class="col-sm-2">
 				<div class = "card text-black" >
 					<div class = "card-body">
 						<h4 class = "card-title"> {{course}} </h4>
@@ -55,7 +57,6 @@
 				{% endfor %}
 			</div>
 		</div>
-
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
