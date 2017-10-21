@@ -106,6 +106,16 @@ class Controller(object):
         model = SurveyModel()
         result = model.get_SA_responses(course_name, questionID)
         return result
+
+    def push_mandatory_questions(self, questions, course_name):
+        model = SurveyModel()
+        model.push_mandatory_questions(questions, course_name)
+
+    def get_mandatory_status(self, course_name, question):
+        model = SurveyModel()
+        result = model.get_mandatory_status(course_name, question)
+        return result
+
 # Model
 class SurveyModel(object):
     def search_surveyID(self, course_name):
@@ -118,7 +128,7 @@ class SurveyModel(object):
         return question_list
 
     def add_to_survey(self, course_name, questionID):
-        query = "INSERT INTO survey VALUES ('%s', '%s')" %(course_name, questionID)
+        query = "INSERT INTO survey (course_name, questionID) VALUES ('%s', '%s')" %(course_name, questionID)
         self._dbinsert(query)
 
     def view_all_questions(self):
@@ -226,6 +236,15 @@ class SurveyModel(object):
 
     def get_SA_responses(self, course_name, questionID):
         query = "SELECT answer_text FROM survey_answers WHERE (course_name = '%s' AND questionID = '%s')" %(course_name, questionID)
+        result = self._dbselect(query)
+        return result
+
+    def push_mandatory_questions(self, qID, course_name):
+        query = "UPDATE survey SET requisitness = 'Yes' where questionID = '%s' AND course_name = '%s'" %(qID, course_name)
+        self._dbinsert(query)
+
+    def get_mandatory_status(self, course_name, question):
+        query = "SELECT requisitness FROM survey where (course_name = '%s' AND questionID = '%s')" %(course_name, question)
         result = self._dbselect(query)
         return result
 

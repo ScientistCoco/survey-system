@@ -191,7 +191,7 @@ def review_course(course_name):
 			selected_course = request.form.get('course_selected')
 			question_to_delete = request.form.getlist('checkbox_value')
 			for question in question_to_delete:
-				teacher.delete_question_from_course(question, course_name)
+				teacher.delete_question_from_course_teacher(question, course_name)
 
 			# Refresh the question_answer list
 			question_answer = {}
@@ -252,8 +252,9 @@ def survey_creation():
 			question_in_course = survey_system.get_question(selected_course)
 
 			for question in question_in_course:
-				question_answer[question] = admin.view_answers(question)
-
+				list1 = ()
+				list1 = list1 + admin.get_mandatory_status(selected_course, question) + admin.view_answers(question)
+				question_answer[question] = list1
 			status = survey_system.get_status_of_course(selected_course)
 
 		elif request.form['submit'] == 'open':
@@ -273,7 +274,9 @@ def survey_creation():
 			# Update the question list
 			question_in_course = survey_system.get_question(selected_course)
 			for question in question_in_course:
-				question_answer[question] = admin.view_answers(question)
+				list1 = ()
+				list1 = list1 + admin.get_mandatory_status(selected_course, question) + admin.view_answers(question)
+				question_answer[question] = list1
 
 		elif request.form['submit'] == 'delete_question':
 			selected_course = request.form.get('course_selected')
@@ -285,12 +288,15 @@ def survey_creation():
 			question_in_course = survey_system.get_question(selected_course)
 
 			for question in question_in_course:
-				question_answer[question] = admin.view_answers(question)
-
+				list1 = ()
+				list1 = list1 + admin.get_mandatory_status(selected_course, question) + admin.view_answers(question)
+				question_answer[question] = list1
 			status = survey_system.get_status_of_course(selected_course)
 
 		elif request.form['submit'] == 'put_into_review':
 			selected_course = request.form.get('course_selected')
+			mandatory_questions = request.form.getlist('checkbox_value')
+			admin.push_mandatory_questions(selected_course, mandatory_questions)
 			admin.change_survey_status(selected_course, 'review')
 			status = survey_system.get_status_of_course(selected_course)
 
