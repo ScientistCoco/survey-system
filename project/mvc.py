@@ -22,12 +22,14 @@ class Controller(object):
         all_questions = model.view_all_questions()
         return view.view_all_questions(all_questions)
 
-    # Returns the question corresponding to the id
-    def find_question(self, questionID):
-        model = SurveyModel()
-        result = model.find_question(questionID)
-        return result[0]
 
+    def find_question(self, question):
+        model = SurveyModel()
+        result = model.find_question(question)
+        if result:
+            return result[0]
+
+    # Returns the question corresponding to the id
     def search_questionID(self, questionID):
         model = SurveyModel()
         view = SurveyView()
@@ -275,7 +277,8 @@ class SurveyModel(object):
 class SurveyView(object):
     def view_questionID(self, questionID):
         #questionID in tupple format so we only want to get first item
-        return questionID[0]
+        if questionID:
+            return questionID[0]
 
     def view_answerID(self, answerID):
         return answerID

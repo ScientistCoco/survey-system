@@ -355,4 +355,6 @@ def answer_survey(course_name, semester):
 	return render_template("survey_form.html", course_name = course_name, semester = semester,
 	question_answer = question_answer, status = status)
 
+
+from routes import app
 app.run(debug=True)

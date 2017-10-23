@@ -161,12 +161,16 @@ class Admin(Staff):
 	def add_question(self, question, questionType = None, answers = None):
 		questionID = random.randint(1,1000)
 		answerID = questionID
-		if questionType == None:
-			questionType = 'SA'
-		elif answers != None:
-			for answer in answers:
-				controller.add_answerText(answerID, questionID, answer)
-		controller.add_questionText(questionID, question, questionType)
+		# Check that the question has not yet been added:
+		duplicate = controller.search_questionID(question)
+		if not controller.search_questionID(question):
+			print("adding...")
+			if questionType == None:
+				questionType = 'SA'
+			elif answers != None:
+				for answer in answers:
+					controller.add_answerText(answerID, questionID, answer)
+			controller.add_questionText(questionID, question, questionType)
 
 	def delete_question(self, question):
 		question_id = controller.search_questionID(question)
@@ -187,8 +191,6 @@ class Admin(Staff):
 			qID = controller.search_questionID(question)
 			controller.push_mandatory_questions(qID, course_name)
 
-admin = Admin('50')
-print(admin.get_mandatory_status('SENG2011 17s2', 'What did you enjoy most?'))
 class Teacher(Staff):
 	def __init__(self, ID):
 		Staff.__init__(self, ID)
@@ -259,6 +261,21 @@ class Database():
 		con.close()
 		f.close()
 
+	def login_details_loader(self):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
+
+		with open('passwords.csv','r') as f:
+	 # csv.DictReader uses first line in file for column headings by default
+			dr = csv.DictReader(f)
+			increment = 0;
+			for i in dr:
+				increment = increment + 1
+				to_db = [(i['id'], i['password'], i['type'])]
+				cur.executemany("INSERT OR REPLACE INTO login_details (id, password, type) VALUES (?, ?, ?);", to_db)
+				con.commit()
+		con.close()
+
 	def count_students(self, ID, course_name, semester):
 		con = sqlite3.connect("survey_database.db")
 		cur = con.cursor()
@@ -269,10 +286,23 @@ class Database():
 			result = result + row
 		return result[0]
 
-student = Database()
-student.enrol_student('50', 'SENG2011', '17s2')
-print(student.count_students('50', 'SENG2011', '17s2'))
+	def create_tables(self):
+		con = sqlite3.connect("survey_database.db")
+		cur = con.cursor()
 
-admin = Admin('admin')
-survey = Survey_system('courses.csv', admin)
-print([(survey.get_question('SENG2011 17s2')[0])])
+		cur.execute("CREATE TABLE if not EXISTS answer (answerID int not null, questionID int not null, answer_text text not null)")
+
+		cur.execute("CREATE TABLE if not EXISTS survey_answers (course_name text not null, questionID int not null, answer_text text not null)")
+
+		cur.execute("CREATE TABLE if not EXISTS login_details (id text primary key not null, password text not null, type text not null)")
+
+		cur.execute("CREATE TABLE if not EXISTS student_enrolments (id int not null, course_name text not null, semester text not null, survey_completed text not null, num int primary key not null)")
+
+		cur.execute("CREATE TABLE if not EXISTS survey_availability (course_name text primary key not null, availability text)")
+
+		cur.execute("CREATE TABLE if not exists question (questionID int primary key not null, question_text not null, question_type text not null)")
+
+		cur.execute("CREATE TABLE if not exists survey (course_name text not null, questionID not null, requisitness text default 'No')")
+
+		con.commit()
+		con.close()
