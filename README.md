@@ -3,12 +3,12 @@ To get to the admin dashboard use the following: Username = admin; password = pa
 To get to one of the student dashboards use the following: Username = 100; password = student228
 To get to one of the staff dashboards use the following: Username = 92; password = staff136
 
-<b> Login page <\b>
+<b> Login page 
   
   ![alt text](https://i.imgur.com/qmqwCF1.png)
   
-<b> Admin dashboard <\b>
+<b> Admin dashboard 
   ![alt text](https://i.imgur.com/pghnAz2.png)
   
-<b> Student dashboard <\b>
+<b> Student dashboard
   ![alt text](https://i.imgur.com/Au5Azbg.png)
