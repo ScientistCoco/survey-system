@@ -1,3 +1,6 @@
+<b> Description: </b>
+<p>Group project for COMP1531 (Software Engineering Fundamentals) to get familiar with basic agile practices and some basic object orientated programming knowledge. </p>
+  
 <b> Login details for testing: </b>
 <ul>
   <li> To get to the admin dashboard use the following: Username = admin; password = password </li>
